@@ -6,7 +6,7 @@ author 'VOLTA'
 description 'Adds mission creation and management to ExtendedM.'
 
 dependencies {
-    'exm-missions'
+    'exm-core'
 }
 
 client_scripts {

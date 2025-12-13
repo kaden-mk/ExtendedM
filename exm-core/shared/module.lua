@@ -1,5 +1,4 @@
 ExtendedM = ExtendedM or {}
-ExtendedM.PlayerData = {}
 
 --- Registers a new API table (module) with the core framework.
 --- @param name string The desired key for the module (e.g., "Missions").
