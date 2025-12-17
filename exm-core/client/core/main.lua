@@ -22,7 +22,7 @@ end
 RegisterNetEvent('ExtendedM:Client:SetInitialData')
 AddEventHandler('ExtendedM:Client:SetInitialData', function(data)
     SetNativeMoney(data.cash, data.bank)
-    print("CLIENT DEBUG: Initial data received. Cash: " .. data.cash .. " Bank: " .. data.bank)
+    print("CLIENT DEBUG: Initial data received. Cash: " .. data.cash and data.cash or "0" .. " Bank: " .. data.bank and data.bank or "0")
 end)
 
 RegisterNetEvent('ExtendedM:Client:UpdateCash')

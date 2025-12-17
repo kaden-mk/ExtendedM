@@ -8,14 +8,14 @@ description 'The core of the framework for all functions.'
 client_scripts {
     "client/core/utility.lua",
     "client/core/main.lua",
-
-    "client/atms/atm-client.lua",
+    "client/atms/atm-client",
+    "client/stores/stores-handler"
 }
 
 server_scripts {
     "server/core/players.lua",
-
-    "server/atms/atm-server.lua"
+    "server/atms/atm-server.lua",
+    "server/stores/stores-manager.lua"
 }
 
 shared_scripts {
