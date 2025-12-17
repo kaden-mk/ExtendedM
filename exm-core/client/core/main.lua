@@ -1,4 +1,4 @@
-local PlayerData = {
+PlayerData = {
     cash = 0,
     bank = 0
 }

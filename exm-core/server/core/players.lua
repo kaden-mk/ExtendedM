@@ -1,5 +1,13 @@
 ExtendedM.PlayerData = {}
 
+local TEMPLATE_PLAYER_DATA = {
+    save_data = {
+        cash = 100,
+        bank = 0,
+        identifier = nil
+    },
+}
+
 local Players = {}
 local TemporaryData = {}
 
@@ -19,11 +27,7 @@ local function GetIdentifiers(source)
         end
     end
 
-    if license then
-        return license
-    end
-
-    return nil
+    return license
 end
 
 --- Saves a player's data.
@@ -36,11 +40,11 @@ function ExtendedM.PlayerData.SavePlayerData(source)
         return false
     end
 
-    local kvp_key = "player:" .. player_data.identifier
-    local data = json.encode(player_data)
+    local kvp_key = "player:" .. player_data.save_data.identifier
+    local data = json.encode(player_data.save_data)
 
     SetResourceKvp(kvp_key, data)
-    print(string.format("[INFO] Saved KVP data for %s", player_data.identifier))
+    print(string.format("[INFO] Saved KVP data for %s", player_data.save_data.identifier))
 
     return true 
 end
@@ -52,13 +56,40 @@ function ExtendedM.PlayerData.GetPlayerData(source)
     return Players[source]
 end
 
+--- Deletes a player's data from the KVP store using the identifier.
+--- @param identifier string
+--- @return boolean True if successful, false otherwise.
+function ExtendedM.PlayerData.DeletePlayerKVPDataWithIdentifier(identifier)
+    if not identifier or identifier == "" then
+        return false
+    end
+
+    local kvp_key = "player:" .. identifier
+
+    DeleteResourceKvp(kvp_key)
+
+    print(string.format("[INFO] Deleted KVP data for %s", identifier))
+    return true
+end
+
 --- Retrieve a player's cash.
 --- @param source number The player's server ID.
 --- @return number The player's cash amount.
 function ExtendedM.PlayerData.GetPlayerCash(source)
     local data = Players[source]
+    if not data then return 0 end
 
-    return data.cash and data.cash or 0
+    return data.save_data.cash and data.save_data.cash or 0
+end
+
+--- Retrieve a player's bank.
+--- @param source number The player's server ID.
+--- @return number The player's bank amount.
+function ExtendedM.PlayerData.GetPlayerBank(source)
+    local data = Players[source]
+    if not data then return 0 end
+
+    return data.save_data.bank and data.save_data.bank or 0
 end
 
 --- Set a player's cash.
@@ -70,7 +101,7 @@ function ExtendedM.PlayerData.SetPlayerCash(source, amount)
 
     if not data then return false end 
 
-    data.cash = amount
+    data.save_data.cash = amount
     TriggerClientEvent('ExtendedM:Client:UpdateCash', source, amount)
     
     return true
@@ -85,40 +116,50 @@ function ExtendedM.PlayerData.SetPlayerBank(source, amount)
 
     if not data then return false end
 
-    data.bank = amount
+    data.save_data.bank = amount
     TriggerClientEvent('ExtendedM:Client:UpdateBank', source, amount)
 
     return true 
 end
 
-AddEventHandler('playerConnecting', function(name, set_kick_reason, deferrals)
-    local source = source 
-    local identifier = GetIdentifiers(source) 
-    
+local function LoadPlayerData(source)
+    local identifier = GetIdentifiers(source)
     if not identifier then
-        set_kick_reason("Failed to retrieve a unique Steam/License identifier.")
-        deferrals.done()
-        return
+        return nil, "Failed to retrieve a unique Steam/License identifier."
     end
 
-    local kvp_key = "player:" .. identifier 
-
-    deferrals.defer()
-    deferrals.update("Loading player data from KVP storage...")
-
+    local kvp_key = "player:" .. identifier
     local raw_data = GetResourceKvpString(kvp_key)
     local player_data
 
     if raw_data and raw_data ~= "" then
-        player_data = json.decode(raw_data)
+        player_data = {}
+        player_data.save_data = json.decode(raw_data)
         print(string.format("[INFO] Loaded data for %s", identifier))
     else
-        player_data = {
+        player_data = {}
+        player_data.save_data = {
             cash = 100,
             bank = 0,
             identifier = identifier
         }
         print(string.format("[INFO] Created new data for %s", identifier))
+    end
+
+    return player_data
+end
+
+AddEventHandler('playerConnecting', function(name, set_kick_reason, deferrals)
+    local source = source
+    
+    deferrals.defer()
+    deferrals.update("Loading player data from KVP storage...")
+
+    local player_data, err = LoadPlayerData(source)
+    if not player_data then
+        set_kick_reason(err)
+        deferrals.done()
+        return
     end
 
     TemporaryData[source] = player_data
@@ -138,6 +179,27 @@ AddEventHandler('playerJoining', function(old_source)
     TemporaryData[old_source] = nil
 
     TriggerClientEvent('ExtendedM:Client:SetInitialData', source, data)
+end)
+
+AddEventHandler('onResourceStart', function(resourceName)
+    if resourceName ~= GetCurrentResourceName() then return end
+
+    local players = GetPlayers()
+
+    for _, playerIdStr in ipairs(players) do
+        local playerId = tonumber(playerIdStr)
+
+        if playerId then
+            local player_data = LoadPlayerData(playerId)
+            
+            if player_data then
+                Players[playerId] = player_data
+                TriggerClientEvent('ExtendedM:Client:SetInitialData', playerId, player_data)
+            else
+                print(string.format("[WARN] Could not load data for player %d on resource start", playerId))
+            end
+        end
+    end
 end)
 
 AddEventHandler('playerDropped', function()
@@ -178,3 +240,24 @@ RegisterCommand('setmoney', function(source, args, rawCommand)
         TriggerClientEvent('chat:addMessage', source, { args = { '^1ERROR: Failed to update player data.' } })
     end
 end, false)
+
+RegisterCommand('delete_player_data', function(source, args)
+      if source ~= 0 then
+        print("[ERROR] delete_player_data can only be used from the server console.")
+        return
+    end
+
+    local identifier = args[1]
+    if not identifier then
+        print("[USAGE] delete_player_data <license>")
+        return
+    end
+
+    local success = ExtendedM.PlayerData.DeletePlayerKVPDataWithIdentifier(identifier)
+
+    if success then
+        print(string.format("[INFO] Player data wiped for %s", identifier))
+    else
+        print(string.format("[ERROR] Failed to wipe player data for %s", identifier))
+    end
+end, true)
