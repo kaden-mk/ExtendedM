@@ -1,16 +1,27 @@
 ExtendedM.Utility = {}
 
 ---Easily creates a blip on the map.
+---@param blipType string
 ---@param settings any
 ---@return Blip
-function ExtendedM.Utility.CreateBlip(settings)
-    if not settings.coords then return end
-    
-    local blip = AddBlipForCoord(settings.coords[1], settings.coords[2], settings.coords[3])
+function ExtendedM.Utility.CreateBlip(blipType, settings)
+    local blip = nil
+
+    if blipType == "coord" then
+        if not settings.coords then return end
+
+        blip = AddBlipForCoord(settings.coords[1], settings.coords[2], settings.coords[3])
+    elseif blipType == "entity" then
+        if not settings.entity then return end
+
+        blip = AddBlipForEntity(settings.entity)
+    end
+
     SetBlipSprite(blip, settings.icon or 1)
-    SetBlipAsShortRange(blip, settings.shortRange or false)
-    SetBlipScale(blip, settings.scale or 1)
+    SetBlipAsShortRange(blip, settings.shortRange or true)
+    SetBlipScale(blip, settings.scale or 1.0)
     SetBlipColour(blip, settings.color or 0)
+    SetBlipDisplay(blip, settings.display or 2)
 
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString(settings.name)
