@@ -8,7 +8,7 @@ description 'Uses ExtendedMs managers & systems to create content off of them.'
 client_scripts {}
 
 server_scripts {
-    "stores.lua"
+    "server/stores.lua"
 }
 
 shared_scripts {}

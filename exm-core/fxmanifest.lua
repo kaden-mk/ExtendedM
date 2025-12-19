@@ -9,13 +9,13 @@ client_scripts {
     "client/core/utility.lua",
     "client/core/main.lua",
     "client/atms/atm-client",
-    "client/stores/stores-handler"
+    "client/stores/store-handler"
 }
 
 server_scripts {
     "server/core/players.lua",
     "server/atms/atm-server.lua",
-    "server/stores/stores-manager.lua"
+    "server/stores/store-manager.lua"
 }
 
 shared_scripts {
