@@ -6,19 +6,13 @@ author 'VOLTA'
 description 'The core of the framework for all functions.'
 
 client_scripts {
-    "client/core/utility.lua",
-    "client/core/main.lua",
-    "client/atms/atm-client",
-    "client/stores/store-handler"
+    "client/**/*.lua"
 }
 
 server_scripts {
-    "server/core/players.lua",
-    "server/atms/atm-server.lua",
-    "server/stores/store-manager.lua"
+    "server/**/*.lua"
 }
 
 shared_scripts {
-    "shared/module.lua",
-    "shared/config.lua"
+    "shared/*.lua"
 }
