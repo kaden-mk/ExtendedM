@@ -4,11 +4,13 @@ ExtendedM.Utility = {}
 ---@param settings any
 ---@return Blip
 function ExtendedM.Utility.CreateBlip(settings)
-    local blip = AddBlipForCoord(settings.coords)
-    SetBlipSprite(blip, settings.icon)
-    SetBlipAsShortRange(blip, settings.shortRange)
-    SetBlipScale(blip, settings.scale)
-    SetBlipColour(blip, settings.color)
+    if not settings.coords then return end
+    
+    local blip = AddBlipForCoord(settings.coords[1], settings.coords[2], settings.coords[3])
+    SetBlipSprite(blip, settings.icon or 1)
+    SetBlipAsShortRange(blip, settings.shortRange or false)
+    SetBlipScale(blip, settings.scale or 1)
+    SetBlipColour(blip, settings.color or 0)
 
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString(settings.name)
