@@ -2,7 +2,7 @@ ExtendedM.Utility = {}
 
 ---Easily creates a blip on the map.
 ---@param settings any
----@return Blip
+---@return integer
 function ExtendedM.Utility.CreateBlip(settings)
     if not settings.coords then return end
     

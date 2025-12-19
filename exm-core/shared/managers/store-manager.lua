@@ -1,3 +1,5 @@
+ExtendedM = ExtendedM or {}
+
 local StoreManager = {}
 StoreManager.StoreTypes = {}
 

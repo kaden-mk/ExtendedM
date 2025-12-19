@@ -1,5 +1,3 @@
-ATM_HASHES = {
-    -1126237515,
-	-1364697528,
-	506770882
-}
+ExtendedM = ExtendedM or {}
+
+ExtendedM.Config = {}

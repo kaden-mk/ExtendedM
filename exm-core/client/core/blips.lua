@@ -1,7 +1,7 @@
 local list = {
     {
         coords = {243.18, -45.01, 69.9},
-        icon = 110,
+        icon = ExtendedM.Enum.BLIP_ICONS.GUN_SHOP,
         name = "Gun Store"
     }
 }

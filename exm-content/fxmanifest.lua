@@ -5,10 +5,14 @@ name 'ExtendedM-Content'
 author 'VOLTA'
 description 'Uses ExtendedMs managers & systems to create content off of them.'
 
-client_scripts {}
-
-server_scripts {
-    "server/stores.lua"
+dependencies {
+    'exm-core'
 }
 
-shared_scripts {}
+client_scripts {}
+
+server_scripts {}
+
+shared_scripts {
+    "stores.lua"
+}
