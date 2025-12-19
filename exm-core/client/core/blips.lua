@@ -8,6 +8,6 @@ local list = {
 
 Citizen.CreateThread(function()
     for _, v in pairs(list) do
-        ExtendedM.Utility.CreateBlip(v)
+        ExtendedM.Utility.CreateBlip("coord", v)
     end
 end)
