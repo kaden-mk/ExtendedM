@@ -6,10 +6,13 @@ author 'VOLTA'
 description 'Uses ExtendedMs managers & systems to create content off of them.'
 
 dependencies {
-    'exm-core'
+    'exm-core',
+    'exm-interface'
 }
 
-client_scripts {}
+client_scripts {
+
+}
 
 server_scripts {}
 

@@ -3,7 +3,7 @@ ExtendedM.Utility = {}
 ---Easily creates a blip on the map.
 ---@param blipType string
 ---@param settings any
----@return Blip
+---@return integer | nil
 function ExtendedM.Utility.CreateBlip(blipType, settings)
     local blip = nil
 
@@ -16,6 +16,8 @@ function ExtendedM.Utility.CreateBlip(blipType, settings)
 
         blip = AddBlipForEntity(settings.entity)
     end
+
+    if not blip then return end
 
     SetBlipSprite(blip, settings.icon or 1)
     SetBlipAsShortRange(blip, settings.shortRange or true)
