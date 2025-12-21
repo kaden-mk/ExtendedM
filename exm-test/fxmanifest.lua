@@ -6,7 +6,10 @@ description "Testing ground"
 author "VOLTA"
 version "1.0.0"
 
-dependency 'exm-interface'
+dependencies {
+	'exm-interface',
+	'exm-core'
+}
 
 shared_scripts {
 	'shared/*.lua'

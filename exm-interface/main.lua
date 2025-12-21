@@ -3,6 +3,7 @@ local Input = EXMInterface.Input
 local Render = EXMInterface.Render
 local Items = EXMInterface.Items
 
+---@class EXMInterface
 local API = {}
 
 local function is_callable(value)
@@ -26,7 +27,7 @@ end
 ---Registers a new menu with the framework.
 ---@param id any | function  Can be an ID or directly the callback function
 ---@param cb function | nil  The callback (if first arg is an ID)
----@return any The menu ID
+---@return any  The menu ID
 function API.RegisterMenu(id, cb)
     if is_callable(id) and cb == nil then
         cb = id
@@ -56,10 +57,18 @@ function API.IsVisible(id)
     return Core.visible and Core.current_menu_id == id
 end
 
+-- i really need to figure out a way to typecheck all of this
 API.Header = Items.Header
+API.SpriteHeader = Items.SpriteHeader
 API.Label = Items.Label
 API.Button = Items.Button
 API.Checkbox = Items.Checkbox
+API.ListItem = Items.ListItem
+API.SubMenu = Items.SubMenu
+API.GoToSubmenu = Core.GoToSubmenu
+API.GoBack = Core.GoBack
+API.WentBack = Core.WentBack
+API.ResetSelection = Core.ResetSelection
 
 EXMInterface.API = API
 exports('EXMInterface', function()

@@ -1,7 +1,18 @@
-PlayerData = {
+ExtendedM = ExtendedM or {}
+
+ExtendedM.PlayerData = {
     cash = 0,
     bank = 0
 }
+
+function ExtendedM.GetPlayerData()
+    local _, cash = StatGetInt(GetHashKey('MP0_WALLET_BALANCE'), -1)
+    local _, bank = StatGetInt(GetHashKey('BANK_BALANCE'), -1)
+    ExtendedM.PlayerData.cash = cash
+    ExtendedM.PlayerData.bank = bank
+
+    return ExtendedM.PlayerData
+end
 
 local DISPLAY_KEY = 20 -- Z
 local HUD_COMPONENT_CASH = 3
@@ -10,12 +21,12 @@ local HUD_COMPONENT_BANK = 4
 local function SetNativeMoney(cash_amount, bank_amount)
     if cash_amount then
         StatSetInt('MP0_WALLET_BALANCE', cash_amount, true)
-        PlayerData.cash = cash_amount
+        ExtendedM.PlayerData.cash = cash_amount
     end
 
     if bank_amount then
         StatSetInt('BANK_BALANCE', bank_amount, true)
-        PlayerData.bank = bank_amount
+        ExtendedM.PlayerData.bank = bank_amount
     end
 end
 

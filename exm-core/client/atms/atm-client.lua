@@ -1,4 +1,4 @@
-PlayerData = PlayerData or {}
+ExtendedM = ExtendedM or {}
 
 local ATM_HASHES = {
     -1126237515,
@@ -61,7 +61,7 @@ local function UpdateBankBalance()
     if not atm_scaleform then return end
 
     ExtendedM.Utility.CallScaleformMethod(atm_scaleform, 'DISPLAY_BALANCE', GetPlayerName(PlayerId()),
-        'Account balance', PlayerData.bank)
+        'Account balance', ExtendedM.PlayerData.bank)
 end
 
 local function OpenMainMenu()
@@ -193,7 +193,7 @@ local function OpenWithDepositScreens(screen)
     local text = current_screen == SCREENS.WITHDRAW and "Select the amount you wish to withdraw from this account." or "Select the amount you wish to deposit into this account."
     ExtendedM.Utility.CallScaleformMethod(atm_scaleform, "SET_DATA_SLOT", 0, text)
 
-    SetupATMMoneyButtons(current_screen == SCREENS.WITHDRAW and PlayerData.bank or PlayerData.cash)
+    SetupATMMoneyButtons(current_screen == SCREENS.WITHDRAW and ExtendedM.PlayerData.bank or ExtendedM.PlayerData.cash)
     ExtendedM.Utility.CallScaleformMethod(atm_scaleform, "DISPLAY_CASH_OPTIONS")
 end
 
@@ -255,13 +255,13 @@ end
 local function HandleInput(selection)
     if current_screen == SCREENS.MAIN then
         if selection == 1 then -- withdrawal screen
-            if PlayerData.bank > 0 then
+            if ExtendedM.PlayerData.bank > 0 then
                 OpenWithDepositScreens(SCREENS.WITHDRAW)
             else
                 DisplayATMError("You have insufficient funds to make a withdrawal.")
             end
         elseif selection == 2 then
-            if PlayerData.cash > 0 then
+            if ExtendedM.PlayerData.cash > 0 then
                 OpenWithDepositScreens(SCREENS.DEPOSIT)
             else
                 DisplayATMError("You have insufficient cash to make a deposit.")

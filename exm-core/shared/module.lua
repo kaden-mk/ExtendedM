@@ -1,3 +1,4 @@
+---@class ExtendedM
 ExtendedM = ExtendedM or {}
 
 --- Registers a new API table (module) with the core framework.

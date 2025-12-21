@@ -86,10 +86,42 @@ function ExtendedM.Utility.PlayAnimation(dict, name, duration, lead_in, flag)
 	TaskPlayAnim(PlayerPedId(), dict, name, lead_in, 8.0, duration, flag, 0, false, false, true)
 end
 
+---Converts a number to a string & adds commas inbetween.
+---@param num number
+---@return string
 function ExtendedM.Utility.Comma(num)
     if type(num) == 'number' then
 		num = tostring(num)
 	end
 
     return #num % 3 == 0 and num:reverse():gsub('(%d%d%d)', '%1,'):reverse():sub(2) or num:reverse():gsub('(%d%d%d)', '%1,'):reverse()
+end
+
+local weapon_group_hashes = {
+    [2685387236] = "Unarmed",
+    [3566412244] = "Melee",
+    [416676503]  = "Pistols",
+    [-957766203] = "Submachine Guns",
+    [970310034]  = "Assault Rifles",
+    [1159398588] = "Light Machine Guns",
+    [860033945]  = "Shotguns",
+    [3082541095] = "Sniper Rifles",
+    [2725924767] = "Heavy Weapons",
+    [1548507267] = "Thrown Weapons",
+    [690389602]  = "Stun Gun",
+    [1595662460] = "Petrol Can",
+    [431593103]  = "Parachute",
+    [3493187224] = "Night Vision",
+    [4257178988] = "Fire Extinguisher",
+    [1175761940] = "Hacking Device",
+    [3759491383] = "Metal Detector",
+    [3539449195] = "Digiscanner",
+    [75159441]   = "Tranquilizer"
+}
+
+---Takes a weapon group's hash from a list and returns the string literal used for it.
+---@param hash integer
+---@return string
+function ExtendedM.Utility.GetWeaponGroupNameFromHash(hash)
+    return weapon_group_hashes[hash] and weapon_group_hashes[hash] or "NULL"
 end
