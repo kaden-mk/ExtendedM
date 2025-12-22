@@ -51,7 +51,7 @@ StoreManager.CreateStoreType("WEAPONS", {
             StoreManager.CreateInteractionArea(data.interaction_position, 1, function()
                 display_weapons = data.weapons
                 Interface.SetVisible(main_menu_id, true)
-            end, "buy weapons.")
+            end, "browse weapons.")
         end
     end
 })

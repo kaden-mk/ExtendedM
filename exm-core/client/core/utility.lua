@@ -123,5 +123,5 @@ local weapon_group_hashes = {
 ---@param hash integer
 ---@return string
 function ExtendedM.Utility.GetWeaponGroupNameFromHash(hash)
-    return weapon_group_hashes[hash] and weapon_group_hashes[hash] or "NULL"
+    return weapon_group_hashes[hash] or "NULL"
 end

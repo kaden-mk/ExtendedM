@@ -27,7 +27,7 @@ end
 ---Registers a new menu with the framework.
 ---@param id any | function  Can be an ID or directly the callback function
 ---@param cb function | nil  The callback (if first arg is an ID)
----@return any  The menu ID
+---@return any menuId The menu ID
 function API.RegisterMenu(id, cb)
     if is_callable(id) and cb == nil then
         cb = id
@@ -42,6 +42,12 @@ end
 ---@param visible boolean
 function API.SetVisible(id, visible)
     Core.SetVisible(id, visible)
+end
+
+---Gets the currently active menu ID
+---@return any
+function API.GetCurrentMenu()
+    return Core.current_menu_id
 end
 
 ---Sets the currently active menu ID without toggling visibility.

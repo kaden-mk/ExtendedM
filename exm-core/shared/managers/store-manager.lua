@@ -39,13 +39,15 @@ ExtendedM.StoreManager = StoreManager
 Citizen.CreateThread(function()
     if IsDuplicityVersion() then return end
 
+    local Interface = exports["exm-interface"]:EXMInterface()
+
     while true do
         local player_position = GetEntityCoords(GetPlayerPed(PlayerId()))
 
         for _, interaction_data in pairs(InteractionAreas) do
             local distance = #(player_position - interaction_data.coords)
 
-            if distance <= interaction_data.range then
+            if distance <= interaction_data.range and not Interface.IsVisible(Interface.GetCurrentMenu()) then
                 BeginTextCommandDisplayHelp("STRING")
                 AddTextComponentSubstringPlayerName("Press ~INPUT_CONTEXT~ to " .. (interaction_data.text or "access this interaction."))
                 EndTextCommandDisplayHelp(0, false, true, -1)
