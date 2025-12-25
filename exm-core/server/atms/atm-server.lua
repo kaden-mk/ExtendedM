@@ -15,12 +15,20 @@ AddEventHandler("ExtendedM:ATM:Transaction", function(amount, withdrawal)
         return
     end
 
+    local function update_cash(value)
+        TriggerClientEvent('ExtendedM:Client:UpdateCash', source, value)
+    end
+
+    local function update_bank(value)
+        TriggerClientEvent('ExtendedM:Client:UpdateBank', source, value)
+    end
+
     if withdrawal then
-        ExtendedM.DataManager.SetKey(source, "bank", bank - amount)
-        ExtendedM.DataManager.SetKey(source, "cash", cash + amount)
+        ExtendedM.DataManager.SetKey(source, "bank", bank - amount, update_bank)
+        ExtendedM.DataManager.SetKey(source, "cash", cash + amount, update_cash)
     else
-        ExtendedM.DataManager.SetKey(source, "bank", bank + amount)
-        ExtendedM.DataManager.SetKey(source, "cash", cash - amount)
+        ExtendedM.DataManager.SetKey(source, "bank", bank + amount, update_bank)
+        ExtendedM.DataManager.SetKey(source, "cash", cash - amount, update_cash)
     end
 
     ExtendedM.DataManager.Save(source)
