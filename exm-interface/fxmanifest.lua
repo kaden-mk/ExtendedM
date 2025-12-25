@@ -4,12 +4,12 @@ game 'gta5'
 name "ExtendedM-Interface"
 description "Creates Native-Like UI used globally for EXM's resources."
 author "VOLTA"
-version "1.1.0"
+version "1.2.0"
 
 client_scripts {
-	'lib/Render.lua',
-	'lib/Input.lua',
-	'lib/Core.lua',
-	'lib/Items.lua',
+	'lib/input.lua',
+	'lib/render.lua',
+	'lib/core.lua',
+	'lib/items.lua',
 	'main.lua'
 }

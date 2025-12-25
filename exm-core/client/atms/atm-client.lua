@@ -307,6 +307,7 @@ Citizen.CreateThread(function()
 
             DisableAllControlActions(0)
             DisableFrontendThisFrame()
+            ---@diagnostic disable-next-line: param-type-mismatch
             StopCinematicShot(true)
 
             if GetLastInputMethod(0) then

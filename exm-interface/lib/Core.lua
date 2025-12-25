@@ -13,12 +13,16 @@ Core.current_y = 0
 Core.current_x = 0
 Core.item_count = 0
 Core.selections = {}
+Core.last_selections = {}
 Core.total_items = {}
 Core.current_description = nil
 Core.menu_stack = {}
 Core.went_back_from = nil
 Core.pagination = {}
 Core.pending_subtitle = nil
+Core.is_exiting = false
+Core.mouse_active = false
+Core.last_click = { time = 0, item = 0 }
 
 local MAX_VISIBLE_ITEMS = 7
 local menu_counter = 0
@@ -39,6 +43,7 @@ function Core.RegisterMenu(id, callback)
 
     Core.menus[id] = callback
     Core.selections[id] = 1
+    Core.last_selections[id] = 1
     Core.total_items[id] = 0
     return id
 end
@@ -56,8 +61,13 @@ function Core.SetVisible(id, visible)
     if visible then
         Core.menu_stack = {}
         Core.current_menu_id = id
+        Core.last_selections[id] = 0
         Core.visible = true
     else
+        if Core.visible then
+            Core.TriggerExit()
+        end
+        
         Core.visible = false
     end
 end
@@ -117,6 +127,7 @@ end
 function Core.ShouldRenderItem(index)
     local id = Core.current_menu_id
     local pag = Core.GetPagination(id)
+
     return index >= pag.min and index <= pag.max
 end
 
@@ -142,11 +153,61 @@ function Core.UpdatePagination(id, selection, total)
     end
 end
 
+---Checks if the menu is currently exiting.
+---@return boolean
+function Core.IsExiting()
+    return Core.is_exiting
+end
+
+---Triggers the exit frame for the current menu.
+function Core.TriggerExit()
+    local id = Core.current_menu_id
+    if not id or not Core.menus[id] then return end
+
+    Core.is_exiting = true
+    
+    local old_x = Core.current_x
+    local old_y = Core.current_y
+    local old_count = Core.item_count
+    
+    Core.current_x = Render.sizes.x
+    Core.current_y = Render.sizes.y
+    Core.item_count = 0
+    Core.current_description = nil
+
+    if Core.menus[id] then
+        Core.menus[id]()
+    end
+
+    Core.current_x = old_x
+    Core.current_y = old_y
+    Core.item_count = old_count
+    
+    Core.is_exiting = false
+end
+
+---Checks if the mouse cursor is within the specified bounds.
+---@param x number
+---@param y number
+---@param w number
+---@param h number
+---@return boolean
+function Core.IsMouseInBounds(x, y, w, h)
+    if not x or not y or not w or not h then return false end
+
+    local mx = GetControlNormal(0, 239)
+    local my = GetControlNormal(0, 240)
+    
+    return mx >= x and mx <= x + w and my >= y and my <= y + h
+end
+
 ---Processes keyboard navigation for the current menu.
 ---@param max_items number
 function Core.ProcessNavigation(max_items)
     local id = Core.current_menu_id
     if not Core.selections[id] then Core.selections[id] = 1 end
+    
+    Core.last_selections[id] = Core.selections[id]
 
     local current_time = GetGameTimer()
     local up_pressed = Input.IsPressed(Input.controls.up)
@@ -196,6 +257,7 @@ function Core.ProcessNavigation(max_items)
 
     if Input.IsJustPressed(Input.controls.back) then
         if not Core.GoBack() then
+            Core.TriggerExit()
             Core.visible = false
         end
         
@@ -209,6 +271,7 @@ Citizen.CreateThread(function()
 
         if Core.visible and Core.menus[Core.current_menu_id] then
             Input.DisableControls()
+            
             Core.current_x = Render.sizes.x
             Core.current_y = Render.sizes.y
             Core.item_count = 0
@@ -228,18 +291,22 @@ Citizen.CreateThread(function()
                Render.SubtitleBar(Core.pending_subtitle.text, Core.selections[id] or 1, Core.item_count, Core.pending_subtitle.x, Core.pending_subtitle.y)
             end
 
-            if Core.item_count > MAX_VISIBLE_ITEMS then
-                local scroll_height = Render.ScrollIndicator(Core.current_x, Core.current_y)
-                Core.current_y = Core.current_y + scroll_height
+            if Core.current_menu_id == id then
+                if Core.item_count > MAX_VISIBLE_ITEMS then
+                    local scroll_height = Render.ScrollIndicator(Core.current_x, Core.current_y)
+                    Core.current_y = Core.current_y + scroll_height
+                end
+
+                if Core.current_description then
+                    Render.Description(Core.current_description, Core.current_x, Core.current_y + Render.sizes.padding)
+                end
+
+                Render.ControlHints()
+
+                Core.ProcessNavigation(Core.item_count)
+            else
+                Core.last_selections[Core.current_menu_id] = 0
             end
-
-            if Core.current_description then
-                Render.Description(Core.current_description, Core.current_x, Core.current_y + Render.sizes.padding)
-            end
-
-            Render.ControlHints()
-
-            Core.ProcessNavigation(Core.item_count)
         else
             wait = 100
         end

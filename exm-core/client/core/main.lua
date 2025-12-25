@@ -3,15 +3,6 @@ ExtendedM.PlayerData = {
     bank = 0
 }
 
-function ExtendedM.GetPlayerData()
-    local _, cash = StatGetInt(GetHashKey('MP0_WALLET_BALANCE'), -1)
-    local _, bank = StatGetInt(GetHashKey('BANK_BALANCE'), -1)
-    ExtendedM.PlayerData.cash = cash
-    ExtendedM.PlayerData.bank = bank
-
-    return ExtendedM.PlayerData
-end
-
 local DISPLAY_KEY = 20 -- Z
 local HUD_COMPONENT_CASH = 3
 local HUD_COMPONENT_BANK = 4

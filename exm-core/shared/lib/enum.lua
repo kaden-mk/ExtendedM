@@ -9,6 +9,18 @@ ExtendedM.Enum = {
         E = 51
     },
 
+    CONTROLS = {
+        MOUSE_X = 239,
+        MOUSE_Y = 240,
+        LOOK_LR = 1,
+        LOOK_UD = 2,
+        LOOK_BEHIND = 3,
+        LOOK_LEFT = 4,
+        LOOK_RIGHT = 5,
+        LOOK_DOWN = 6,
+        ATTACK = 24
+    },
+
     WEAPON_LABELS = {
         WEAPON_ACIDPACKAGE = {
             name = "WT_ACIDPACKAGE",

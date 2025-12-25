@@ -6,6 +6,18 @@ local Render = EXMInterface.Render
 local Input = EXMInterface.Input
 local Items = EXMInterface.Items
 
+local function GetItemState(index)
+    local id = Core.current_menu_id
+    local current = Core.selections[id]
+    local last = Core.last_selections[id] or 1
+
+    local is_hovering = (current == index)
+    local hovered = (current == index and last ~= index)
+    local unhovered = (current ~= index and last == index)
+
+    return is_hovering, hovered, unhovered
+end
+
 ---Renders the header for the current menu.
 ---@param title string
 ---@param subtitle string
@@ -23,7 +35,6 @@ function Items.Header(title, subtitle, r, g, b, a)
         y = Core.current_y
     }
     
-    -- Reserve space for usage in current_y, but render later
     Core.current_y = Core.current_y + Render.sizes.subtitle_height
 end
 
@@ -58,7 +69,7 @@ end
 ---@param text string
 ---@param description string | nil
 ---@param offset_text string | nil
----@return boolean
+---@return ButtonState
 function Items.Button(text, description, offset_text)
     Core.item_count = Core.item_count + 1
     local is_selected = (Core.item_count == Core.selections[Core.current_menu_id])
@@ -68,10 +79,21 @@ function Items.Button(text, description, offset_text)
     end
 
     if not Core.ShouldRenderItem(Core.item_count) then
-        return is_selected and Input.IsJustPressed(Input.controls.select)
+        return {
+            clicked = is_selected and Input.IsJustPressed(Input.controls.select),
+            is_hovering = false,
+            hovered = false,
+            unhovered = false
+        }
     end
 
     local x, y, w, h = Core.current_x, Core.current_y, Render.sizes.width, Render.sizes.item_height
+    local mouse_over = Core.IsMouseInBounds(x, y, w, h)
+    
+    if mouse_over then
+        Core.selections[Core.current_menu_id] = Core.item_count
+        is_selected = true
+    end
 
     if is_selected then
         Render.Rect(x, y, w, h, table.unpack(Render.colors.selected))
@@ -88,20 +110,27 @@ function Items.Button(text, description, offset_text)
     end
 
     local clicked = false
-    if is_selected and Input.IsJustPressed(Input.controls.select) then
+    if is_selected and (Input.IsJustPressed(Input.controls.select) or (mouse_over and Input.IsJustPressed(Input.controls.mouse_select))) then
         clicked = true
         PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
     end
 
+    local is_hovering, hovered, unhovered = GetItemState(Core.item_count)
+
     Core.current_y = Core.current_y + h
-    return clicked
+    return {
+        clicked = clicked,
+        is_hovering = is_hovering,
+        hovered = hovered,
+        unhovered = unhovered
+    }
 end
 
 ---Renders an interactive checkbox.
 ---@param text string
 ---@param checked boolean
 ---@param description string | nil
----@return boolean, boolean
+---@return CheckboxState
 function Items.Checkbox(text, checked, description)
     Core.item_count = Core.item_count + 1
     local is_selected = (Core.item_count == Core.selections[Core.current_menu_id])
@@ -110,18 +139,31 @@ function Items.Checkbox(text, checked, description)
         Core.current_description = description
     end
 
+    if not Core.ShouldRenderItem(Core.item_count) then
+        return {
+            checked = checked,
+            changed = false,
+            clicked = false,
+            is_hovering = false,
+            hovered = false,
+            unhovered = false
+        }
+    end
+
+    local x, y, w, h = Core.current_x, Core.current_y, Render.sizes.width, Render.sizes.item_height
+    local mouse_over = Core.IsMouseInBounds(x, y, w, h)
+    
+    if mouse_over then
+        Core.selections[Core.current_menu_id] = Core.item_count
+        is_selected = true
+    end
+
     local changed = false
-    if is_selected and Input.IsJustPressed(Input.controls.select) then
+    if is_selected and (Input.IsJustPressed(Input.controls.select) or (mouse_over and Input.IsJustPressed(Input.controls.mouse_select))) then
         checked = not checked
         changed = true
         PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
     end
-
-    if not Core.ShouldRenderItem(Core.item_count) then
-        return checked, changed
-    end
-
-    local x, y, w, h = Core.current_x, Core.current_y, Render.sizes.width, Render.sizes.item_height
 
     if is_selected then
         Render.Rect(x, y, w, h, table.unpack(Render.colors.selected))
@@ -145,15 +187,23 @@ function Items.Checkbox(text, checked, description)
 
     Render.Sprite("commonmenu", sprite, icon_x, icon_y, sw, sh, 0.0, tc[1], tc[2], tc[3], tc[4])
 
+    local is_hovering, hovered, unhovered = GetItemState(Core.item_count)
+
     Core.current_y = Core.current_y + h
-    return checked, changed
+    return {
+        checked = checked,
+        clicked = changed,
+        is_hovering = is_hovering,
+        hovered = hovered,
+        unhovered = unhovered
+    }
 end
 
 ---Renders a submenu item that navigates to another menu.
 ---@param text string
 ---@param submenu_id any
 ---@param description string | nil
----@return boolean True when the player enters the submenu
+---@return SubMenuState True when the player enters the submenu
 function Items.SubMenu(text, submenu_id, description)
     Core.item_count = Core.item_count + 1
     local is_selected = (Core.item_count == Core.selections[Core.current_menu_id])
@@ -162,18 +212,45 @@ function Items.SubMenu(text, submenu_id, description)
         Core.current_description = description
     end
 
-    local entered = false
-    if is_selected and Input.IsJustPressed(Input.controls.select) then
-        Core.GoToSubmenu(submenu_id)
-        PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
-        entered = true
-    end
-
     if not Core.ShouldRenderItem(Core.item_count) then
-        return entered
+        return {
+            entered = is_selected and Input.IsJustPressed(Input.controls.select),
+            is_hovering = false,
+            hovered = false,
+            unhovered = false
+        }
     end
 
     local x, y, w, h = Core.current_x, Core.current_y, Render.sizes.width, Render.sizes.item_height
+    local mouse_over = Core.IsMouseInBounds(x, y, w, h)
+    
+    if mouse_over then
+        Core.selections[Core.current_menu_id] = Core.item_count
+        is_selected = true
+    end
+
+    local entered = false
+    local select_pressed = Input.IsJustPressed(Input.controls.select)
+    local mouse_clicked = mouse_over and Input.IsJustPressed(Input.controls.mouse_select)
+
+    if is_selected then
+        if select_pressed then
+            Core.GoToSubmenu(submenu_id)
+            PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+            entered = true
+        elseif mouse_clicked then
+            local current_time = GetGameTimer()
+            if (current_time - Core.last_click.time) < 500 and Core.last_click.item == Core.item_count then
+                Core.GoToSubmenu(submenu_id)
+                PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+                entered = true
+                Core.last_click.time = 0
+            else
+                Core.last_click.time = current_time
+                Core.last_click.item = Core.item_count
+            end
+        end
+    end
 
     if is_selected then
         Render.Rect(x, y, w, h, table.unpack(Render.colors.selected))
@@ -184,8 +261,15 @@ function Items.SubMenu(text, submenu_id, description)
     local tc = is_selected and Render.colors.text_hover or Render.colors.text
     Render.Text(text, x + Render.sizes.padding, y + Render.sizes.text_offset, 0.35, tc[1], tc[2], tc[3], tc[4])
 
+    local is_hovering, hovered, unhovered = GetItemState(Core.item_count)
+
     Core.current_y = Core.current_y + h
-    return entered
+    return {
+        entered = entered,
+        is_hovering = is_hovering,
+        hovered = hovered,
+        unhovered = unhovered
+    }
 end
 
 ---Renders a list item that allows selecting from multiple options.
@@ -193,7 +277,7 @@ end
 ---@param items table
 ---@param current_index number
 ---@param description string | nil
----@return number The updated index
+---@return ListItemState The updated index
 function Items.ListItem(text, items, current_index, description)
     Core.item_count = Core.item_count + 1
     local is_selected = (Core.item_count == Core.selections[Core.current_menu_id])
@@ -204,23 +288,33 @@ function Items.ListItem(text, items, current_index, description)
 
     local new_index = current_index
 
+    if not Core.ShouldRenderItem(Core.item_count) then
+        return {
+            index = new_index,
+            is_hovering = false,
+            hovered = false,
+            unhovered = false
+        }
+    end
+    
+    local x, y, w, h = Core.current_x, Core.current_y, Render.sizes.width, Render.sizes.item_height
+    local mouse_over = Core.IsMouseInBounds(x, y, w, h)
+    if mouse_over then
+        Core.selections[Core.current_menu_id] = Core.item_count
+        is_selected = true
+    end
+
     if is_selected then
-        if Input.IsJustPressed(Input.controls.left) then
-            new_index = current_index - 1
-            if new_index < 1 then new_index = #items end
-            PlaySoundFrontend(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+        if Input.IsJustPressed(Input.controls.left) or (mouse_over and Input.IsJustPressed(Input.controls.mouse_select)) then
+             new_index = current_index + 1
+            if new_index > #items then new_index = 1 end
+             PlaySoundFrontend(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
         elseif Input.IsJustPressed(Input.controls.right) then
             new_index = current_index + 1
             if new_index > #items then new_index = 1 end
             PlaySoundFrontend(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
         end
     end
-
-    if not Core.ShouldRenderItem(Core.item_count) then
-        return new_index
-    end
-
-    local x, y, w, h = Core.current_x, Core.current_y, Render.sizes.width, Render.sizes.item_height
 
     if is_selected then
         Render.Rect(x, y, w, h, table.unpack(Render.colors.selected))
@@ -253,6 +347,14 @@ function Items.ListItem(text, items, current_index, description)
         Render.Sprite("commonmenu", "arrowleft", left_arrow_x, arrow_y, sw, sh, 0.0, tc[1], tc[2], tc[3], tc[4])
     end
 
+    local is_hovering, hovered, unhovered = GetItemState(Core.item_count)
+
     Core.current_y = Core.current_y + h
-    return new_index
+    
+    return {
+        index = new_index,
+        is_hovering = is_hovering,
+        hovered = hovered,
+        unhovered = unhovered
+    }
 end

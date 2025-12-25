@@ -2,6 +2,7 @@ EXMInterface = EXMInterface or {}
 EXMInterface.Render = {}
 
 local Render = EXMInterface.Render
+local Input = EXMInterface.Input
 
 Render.colors = {
     header = { 93, 182, 229, 255 },
@@ -292,7 +293,7 @@ function Render.ControlHints()
 
     BeginScaleformMovieMethod(Render.instructional_scaleform, "SET_DATA_SLOT")
     ScaleformMovieMethodAddParamInt(button_index)
-    ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, 176, true))
+    ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, Input.controls.select, true))
     BeginTextCommandScaleformString("HUD_INPUT2")
     EndTextCommandScaleformString()
     EndScaleformMovieMethod()
@@ -300,7 +301,7 @@ function Render.ControlHints()
 
     BeginScaleformMovieMethod(Render.instructional_scaleform, "SET_DATA_SLOT")
     ScaleformMovieMethodAddParamInt(button_index)
-    ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, 200, true))
+    ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, Input.controls.back, true))
     BeginTextCommandScaleformString("HUD_INPUT3")
     EndTextCommandScaleformString()
     EndScaleformMovieMethod()

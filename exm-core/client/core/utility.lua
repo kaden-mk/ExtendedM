@@ -91,6 +91,7 @@ end
 ---@return string
 function ExtendedM.Utility.Comma(num)
     if type(num) == 'number' then
+        ---@diagnostic disable-next-line: cast-local-type
 		num = tostring(num)
 	end
 
@@ -124,4 +125,39 @@ local weapon_group_hashes = {
 ---@return string
 function ExtendedM.Utility.GetWeaponGroupNameFromHash(hash)
     return weapon_group_hashes[hash] or "NULL"
+end
+
+local mouse_last_position = {x = 0, y = 0}
+local mouse_initialized = false
+
+---Gets the current mouse position as normalized coordinates (0-1)
+---@return table {x: number, y: number}
+function ExtendedM.Utility.GetMousePosition()
+    local x = GetDisabledControlNormal(0, ExtendedM.Enum.CONTROLS.MOUSE_X)
+    local y = GetDisabledControlNormal(0, ExtendedM.Enum.CONTROLS.MOUSE_Y)
+    
+    return {x = x, y = y}
+end
+
+---Gets the mouse movement delta since the last call
+---@return table {x: number, y: number}
+function ExtendedM.Utility.GetMouseDelta()
+    local current = ExtendedM.Utility.GetMousePosition()
+    
+    if not mouse_initialized then
+        mouse_last_position.x = current.x
+        mouse_last_position.y = current.y
+        mouse_initialized = true
+        return {x = 0, y = 0}
+    end
+    
+    local delta = {
+        x = current.x - mouse_last_position.x,
+        y = current.y - mouse_last_position.y
+    }
+    
+    mouse_last_position.x = current.x
+    mouse_last_position.y = current.y
+    
+    return delta
 end

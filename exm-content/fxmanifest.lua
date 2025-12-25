@@ -17,5 +17,7 @@ client_scripts {
 server_scripts {}
 
 shared_scripts {
-    "stores.lua"
+    "stores/config.lua",
+    "stores/definitions/weapon.lua",
+    "stores/init.lua",
 }

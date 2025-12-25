@@ -4,46 +4,42 @@ EXMInterface.Input = {}
 local Input = EXMInterface.Input
 
 Input.controls = {
-    up = 172,
-    down = 173,
-    left = 174,
-    right = 175,
-    select = 176,
-    back = 177
+    up = 188,
+    down = 187,
+    left = 189,
+    right = 190,
+    select = 201,
+    back = 202,
+    mouse_select = 24
 }
 
 ---Checks if a control was just pressed.
 ---@param control number
 ---@return boolean
 function Input.IsJustPressed(control)
-    return IsControlJustPressed(0, control)
+    return IsDisabledControlJustPressed(0, control)
 end
 
 ---Checks if a control is currently pressed.
 ---@param control number
 ---@return boolean
 function Input.IsPressed(control)
-    return IsControlPressed(0, control)
+    return IsDisabledControlPressed(0, control)
 end
+
+local CONTROLS_TO_DISABLE = {
+    199, 200, 24, 25, 14,
+    15, 16, 17, 37, 187,
+    188, 189, 190, 201, 202
+}
+
+local SIZE = #CONTROLS_TO_DISABLE
 
 ---Disables some specific controls so they don't interfere with the UI.
 function Input.DisableControls()
-    DisableControlAction(0, 199, true)
-    DisableControlAction(0, 200, true)
-    DisableControlAction(0, 24, true)
-    DisableControlAction(0, 25, true)
-    DisableControlAction(0, 14, true)
-    DisableControlAction(0, 15, true)
-    DisableControlAction(0, 16, true)
-    DisableControlAction(0, 17, true)
-    DisableControlAction(0, 37, true)
-    DisableControlAction(0, 157, true)
-    DisableControlAction(0, 158, true)
-    DisableControlAction(0, 159, true)
-    DisableControlAction(0, 160, true)
-    DisableControlAction(0, 161, true)
-    DisableControlAction(0, 162, true)
-    DisableControlAction(0, 163, true)
-    DisableControlAction(0, 164, true)
-    DisableControlAction(0, 165, true)
+    -- optimize dat bih
+    for i = 1, SIZE do
+        local control = CONTROLS_TO_DISABLE[i]
+        DisableControlAction(0, control, true)
+    end
 end
