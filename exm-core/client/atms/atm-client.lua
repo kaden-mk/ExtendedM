@@ -1,5 +1,3 @@
-ExtendedM = ExtendedM or {}
-
 local ATM_HASHES = {
     -1126237515,
     -1364697528,

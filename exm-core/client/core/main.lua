@@ -1,5 +1,3 @@
-ExtendedM = ExtendedM or {}
-
 ExtendedM.PlayerData = {
     cash = 0,
     bank = 0
