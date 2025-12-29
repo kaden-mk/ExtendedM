@@ -21,7 +21,7 @@ local function ChangeWeather()
     last_weather_change = os.time()
     Config.Weather.Cycle = math.random(120, 900)
 
-    TriggerClientEvent("ExtendedM:Client:SyncWeather", -1, current_weather, true)
+    TriggerClientEvent("ExtendedM:Client:SyncWeather", -1, current_weather)
 end
 
 local function ConvertToHours()
