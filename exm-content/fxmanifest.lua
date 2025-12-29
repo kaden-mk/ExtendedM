@@ -5,6 +5,8 @@ name 'ExtendedM-Content'
 author 'VOLTA'
 description 'Uses ExtendedMs managers & systems to create content off of them.'
 
+use_experimental_fxv2_oal 'yes'
+
 dependencies {
     'exm-core',
     'exm-interface'

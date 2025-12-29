@@ -5,8 +5,8 @@ local IS_SERVER = IsDuplicityVersion()
 
 local Interface
 if not IS_SERVER then
-    ---@type EXMInterface
-    Interface = exports["exm-interface"]:EXMInterface()
+    ---@type NativeUI
+    Interface = exports["exm-interface"]:EXMInterface().Native
 end
 
 local display_weapons
@@ -24,11 +24,11 @@ local function DisplayWeaponModel(weapon_hash)
     if target_weapon_hash == weapon_hash then return end
     target_weapon_hash = weapon_hash
 
-    Citizen.CreateThread(function()
+    CreateThread(function()
         RequestWeaponAsset(weapon_hash, 31, 0)
         while not HasWeaponAssetLoaded(weapon_hash) do
             if target_weapon_hash ~= weapon_hash then return end
-            Citizen.Wait(0)
+            Wait(0)
         end
         
         if target_weapon_hash ~= weapon_hash then return end
@@ -79,6 +79,8 @@ if not IS_SERVER then
         end
     end)
 
+    Interface.SetDisabledControls(category_menu_id, Interface.ControlTemplates.Default)
+
     main_menu_id = Interface.RegisterMenu(function()
         SetMouseCursorActiveThisFrame()
 
@@ -117,17 +119,19 @@ if not IS_SERVER then
             end
         end
     end)
+
+    Interface.SetDisabledControls(main_menu_id, Interface.ControlTemplates.Default)
 end
 
 StoreManager.CreateStoreType("WEAPONS", {
     callback = function(data)
         if not IS_SERVER then
             StoreManager.CreateInteractionArea(data.interaction_position, 1, function()
-                Citizen.CreateThread(function()
+                CreateThread(function()
                     for hash in pairs(data.weapons) do
                         RequestWeaponAsset(hash, 31, 0)
 
-                        while not HasWeaponAssetLoaded(hash) do Citizen.Wait(0) end
+                        while not HasWeaponAssetLoaded(hash) do Wait(0) end
                     end
                 end)
 
@@ -139,9 +143,9 @@ StoreManager.CreateStoreType("WEAPONS", {
                 SetEntityVisible(player_ped, false, 0)
                 FreezeEntityPosition(player_ped, true)
 
-                Citizen.CreateThread(function()
+                CreateThread(function()
                     while Interface.IsVisible(main_menu_id) or Interface.IsVisible(category_menu_id) do
-                        Citizen.Wait(0)
+                        Wait(0)
 
                         local mouse_cursor_sprite = is_dragging and 4 or 1
                         

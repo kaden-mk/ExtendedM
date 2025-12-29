@@ -33,6 +33,6 @@ AddEventHandler("ExtendedM:ATM:Transaction", function(amount, withdrawal)
 
     ExtendedM.DataManager.Save(source)
 
-    Citizen.Wait(1000)
+    Wait(1000)
     TriggerClientEvent("ExtendedM:ATM:TransactionSuccess", source)
 end)

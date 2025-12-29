@@ -7,6 +7,7 @@
 # EXMInterface 1.3
 
 * Code cleanup, rewrite entire structure and stuff
+* Optimize.
 * Create room to add more features & menu types
 
 # EXMInterface 1.4

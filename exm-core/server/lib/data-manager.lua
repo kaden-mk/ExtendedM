@@ -1,3 +1,5 @@
+---@diagnostic disable: param-type-mismatch
+
 DataManager = {}
 
 local template_data = {
@@ -23,7 +25,7 @@ function DataManager.Save(source)
 
     if not saved_file then
         print("[DATA] Failed saving data for " .. player_data.identifier .. "...Retrying in 1s")
-        Citizen.Wait(1000)
+        Wait(1000)
         DataManager.Save(source)
         return false
     end
@@ -121,6 +123,8 @@ end)
 
 AddEventHandler('playerJoining', function(old_source)
     old_source = tonumber(old_source)
+
+    if not old_source then return end
 
     local data = temp_data[old_source]
     if not data then return end

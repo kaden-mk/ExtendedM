@@ -24,26 +24,25 @@ local atm_scaleform = nil
 local last_transaction_was_withdrawal = false
 
 -- Finding nearest ATM
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
         nearest_atm = 0
 
         local position = GetEntityCoords(GetPlayerPed(PlayerId()))
         for _, hash in pairs(ATM_HASHES) do
-            nearest_atm = GetClosestObjectOfType(position.x, position.y, position.z, PROMPT_DISTANCE, hash, false, false,
-                false)
+            nearest_atm = GetClosestObjectOfType(position.x, position.y, position.z, PROMPT_DISTANCE, hash, false, false, false)
 
             if nearest_atm ~= 0 then
                 break
             end
         end
 
-        Citizen.Wait(500)
+        Wait(500)
     end
 end)
 
 -- Prompt check
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
         if nearest_atm ~= 0 then
             BeginTextCommandDisplayHelp("STRING")
@@ -51,7 +50,7 @@ Citizen.CreateThread(function()
             EndTextCommandDisplayHelp(0, false, true, -1)
         end
 
-        Citizen.Wait(0)
+        Wait(0)
     end
 end)
 
@@ -95,7 +94,7 @@ local function CloseMenu()
     ClearPedTasks(PlayerPedId())
 end
 
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
         if IsControlJustReleased(0, 51) and nearest_atm ~= 0 and not atm_scaleform then
             atm_scaleform = nil
@@ -110,19 +109,19 @@ Citizen.CreateThread(function()
             TaskGoStraightToCoord(player, atm_position.x - atm_forward_vector.x / 1.75,
                 atm_position.y - atm_forward_vector.y / 1.75, player_position.z, 0.75, 3000, atm_heading, 1);
 
-            Citizen.Wait(200)
+            Wait(200)
 
             while GetScriptTaskStatus(PlayerPedId(), 0x7d8f4411) ~= 7 do
-                Citizen.Wait(10)
+                Wait(10)
             end
 
             ExtendedM.Utility.PlayAnimation('amb@prop_human_atm@male@idle_a', 'idle_b', -1, 8.0, 1)
 
-            Citizen.Wait(10)
+            Wait(10)
             StartATMScaleform()
         end
 
-        Citizen.Wait(0)
+        Wait(0)
     end
 end)
 
@@ -296,7 +295,7 @@ end
 -- Scaleform handler
 local current_selection = 0
 
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
         if atm_scaleform then
             ---@diagnostic disable-next-line: missing-parameter
@@ -339,7 +338,7 @@ Citizen.CreateThread(function()
             DrawScaleformMovieFullscreen(atm_scaleform, 255, 255, 255, 255, 0)
         end
 
-        Citizen.Wait(0)
+        Wait(0)
     end
 end)
 

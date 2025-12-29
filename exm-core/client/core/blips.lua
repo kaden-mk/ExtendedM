@@ -6,7 +6,7 @@ local list = {
     }
 }
 
-Citizen.CreateThread(function()
+CreateThread(function()
     for _, v in pairs(list) do
         ExtendedM.Utility.CreateBlip("coord", v)
     end

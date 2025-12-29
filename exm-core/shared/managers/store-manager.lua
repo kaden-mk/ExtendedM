@@ -36,18 +36,28 @@ end
 
 ExtendedM.StoreManager = StoreManager
 
-Citizen.CreateThread(function()
+CreateThread(function()
     if IsDuplicityVersion() then return end
 
-    local Interface = exports["exm-interface"]:EXMInterface()
+    ---@type NativeUI
+    local Interface = exports["exm-interface"]:EXMInterface().Native
+
+    local is_any_menu_visible = false
+    local last_check_time = 0
 
     while true do
-        local player_position = GetEntityCoords(GetPlayerPed(PlayerId()))
+        -- this is so stupid because a function shouldnt fucking take 0.3ms
+        local current_time = GetGameTimer()
+        if current_time - last_check_time > 100 then
+            is_any_menu_visible = Interface.IsAnyMenuVisible()
+            last_check_time = current_time
+        end
 
+        local player_position = GetEntityCoords(GetPlayerPed(PlayerId()))
         for _, interaction_data in pairs(InteractionAreas) do
             local distance = #(player_position - interaction_data.coords)
 
-            if distance <= interaction_data.range and not Interface.IsVisible(Interface.GetCurrentMenu()) then
+            if distance <= interaction_data.range and not is_any_menu_visible then
                 BeginTextCommandDisplayHelp("STRING")
                 AddTextComponentSubstringPlayerName("Press ~INPUT_CONTEXT~ to " .. (interaction_data.text or "access this interaction."))
                 EndTextCommandDisplayHelp(0, false, true, -1)
@@ -58,6 +68,6 @@ Citizen.CreateThread(function()
             end
         end
 
-        Citizen.Wait(0)
+        Wait(0)
     end
 end)

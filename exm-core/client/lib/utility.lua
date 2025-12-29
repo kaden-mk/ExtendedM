@@ -39,7 +39,7 @@ function ExtendedM.Utility.LoadScaleformMovie(name)
     local scaleform = RequestScaleformMovie(name)
 
     while not HasScaleformMovieLoaded(scaleform) do
-        Citizen.Wait(0)
+        Wait(0)
     end
 
     return scaleform
@@ -80,7 +80,7 @@ end
 function ExtendedM.Utility.PlayAnimation(dict, name, duration, lead_in, flag)
     while(not HasAnimDictLoaded(dict)) do
 		RequestAnimDict(dict)
-		Citizen.Wait(0)
+		Wait(0)
 	end
 
 	TaskPlayAnim(PlayerPedId(), dict, name, lead_in, 8.0, duration, flag, 0, false, false, true)
@@ -161,3 +161,78 @@ function ExtendedM.Utility.GetMouseDelta()
     
     return delta
 end
+
+local is_input_blocked = false
+
+---Blocks the user's keyboard input
+---@param bool boolean Whether or not to block
+function ExtendedM.Utility.SetBlockInput(bool)
+    is_input_blocked = bool
+end
+
+---Makes the on screen keyboard appear
+---@param text_entry string The text on top of the black square
+---@param example_text string The text that'll be inside the black box when nothing is inputted
+---@param max_string_length integer The maximum amount of characters that can be entered
+---@return string | nil
+function ExtendedM.Utility.OnScreenKeyboardInput(text_entry, example_text, max_string_length)
+    AddTextEntry('FMMC_KEY_TIP1', text_entry) 
+	DisplayOnscreenKeyboard(1, "FMMC_KEY_TIP1", "", example_text, "", "", "", max_string_length)
+
+    ExtendedM.Utility.SetBlockInput(true)
+
+    while UpdateOnscreenKeyboard() ~= 1 and UpdateOnscreenKeyboard() ~= 2 do 
+		Wait(0)
+	end
+
+    ExtendedM.Utility.SetBlockInput(false)
+
+    return GetOnscreenKeyboardResult()
+end
+
+---Spawns a vehicle and teleports the player inside
+---@param model_name string The vehicle to spawn using the model name
+---@param replace_current_vehicle boolean? If the player is already in a vehicle it'll get replaced if its true
+---@return boolean Returns if it successfully found the vehicle
+function ExtendedM.Utility.SpawnVehicleForPlayer(model_name, replace_current_vehicle)
+    local model_hash = GetHashKey(model_name)
+
+    if not IsModelInCdimage(model_hash) or not IsModelAVehicle(model_hash) then
+        return false
+    end
+
+    RequestModel(model_hash)
+    while not HasModelLoaded(model_hash) do
+        Wait(0)
+    end
+
+    local player_ped = PlayerPedId()
+    local player_coords = GetEntityCoords(player_ped)
+    local player_heading = GetEntityHeading(player_ped)
+
+    if replace_current_vehicle and IsPedInAnyVehicle(player_ped, false) then
+        local ped_vehicle = GetVehiclePedIsIn(player_ped, false)
+        SetEntityAsMissionEntity(ped_vehicle, false, false)
+        DeleteVehicle(ped_vehicle)
+    end
+
+    local vehicle = CreateVehicle(model_hash, player_coords.x, player_coords.y, player_coords.z, player_heading, true, false)
+
+    SetPedIntoVehicle(player_ped, vehicle, -1)
+    SetModelAsNoLongerNeeded(model_hash)
+
+    return true
+end
+
+CreateThread(function()
+    while true do
+        if is_input_blocked then
+            DisableAllControlActions(0)
+            DisableAllControlActions(1)
+            DisableAllControlActions(2)
+            Wait(0)
+        else
+            Wait(1000)
+        end
+    end
+end)

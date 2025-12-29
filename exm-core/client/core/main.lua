@@ -43,9 +43,9 @@ AddEventHandler('ExtendedM:Client:UpdateBank', function(bank)
     end
 end)
 
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
-        Citizen.Wait(0)
+        Wait(0)
 
         if IsControlJustPressed(0, DISPLAY_KEY) then 
             if IsHudComponentActive(HUD_COMPONENT_CASH) then
