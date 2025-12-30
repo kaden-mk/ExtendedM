@@ -14,6 +14,8 @@
 * Make it so that you can hold on list items
 * Add sliders
 * Add better state management
+* Fix a bug where for some reason when you choose a submenu it can scroll down and just choose another submenu randomly
+** Note: when you back out of the submenu that you randomly got put into, you'll be into the one you meant to select
 
 # EXMInterface 1.4
 

@@ -7,9 +7,12 @@ description 'The core of the framework for all functions.'
 
 use_experimental_fxv2_oal 'yes'
 
+dependency 'exm-interface'
+
 client_scripts {
     "client/lib/*.lua",
     "client/core/*.lua",
+    "client/managers/*.lua",
     "client/atms/*.lua"
 }
 
