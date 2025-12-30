@@ -10,6 +10,11 @@
 * Optimize.
 * Create room to add more features & menu types
 
+# EXMInterface 1.3.1
+* Make it so that you can hold on list items
+* Add sliders
+* Add better state management
+
 # EXMInterface 1.4
 
 * Pause Menu scaleform menus that appear when hovering over a blip (idk their name)

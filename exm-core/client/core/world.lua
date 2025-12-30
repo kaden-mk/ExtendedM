@@ -4,7 +4,7 @@ RegisterNetEvent("ExtendedM:Client:SyncWeather")
 AddEventHandler("ExtendedM:Client:SyncWeather", function (weather, now)
     if current_weather ~= weather then
         if not now then
-            SetWeatherTypeOvertimePersist(weather, Config.Weather.Transition)
+            SetWeatherTypeOvertimePersist(weather, ExtendedM.Config.Weather.Transition)
         else
             SetWeatherTypeNowPersist(weather)
         end

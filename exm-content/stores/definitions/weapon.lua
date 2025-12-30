@@ -65,8 +65,8 @@ if not IS_SERVER then
 
         Interface.SpriteHeader("shopui_title_gunclub", "shopui_title_gunclub", ExtendedM.Utility.GetWeaponGroupNameFromHash(selected_category))
 
-        local cash = ExtendedM.PlayerData.cash
-
+        local cash = ExtendedM.DataSyncer.Data.cash
+        
         for hash, price in pairs(display_weapons) do
             if GetWeapontypeGroup(hash) == selected_category then
                 local label = ExtendedM.Enum.WEAPON_LABELS[hash]
@@ -127,6 +127,8 @@ StoreManager.CreateStoreType("WEAPONS", {
     callback = function(data)
         if not IS_SERVER then
             StoreManager.CreateInteractionArea(data.interaction_position, 1, function()
+                ExtendedM.DataSyncer:SyncData()
+
                 CreateThread(function()
                     for hash in pairs(data.weapons) do
                         RequestWeaponAsset(hash, 31, 0)

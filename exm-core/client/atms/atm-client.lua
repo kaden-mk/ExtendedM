@@ -1,8 +1,4 @@
-local ATM_HASHES = {
-    -1126237515,
-    -1364697528,
-    506770882,
-}
+local ATM_HASHES = ExtendedM.Config.ATMs.Models
 
 local SCREENS = {
     MAIN = 0,
@@ -23,42 +19,41 @@ local last_transaction_amount = 0
 local atm_scaleform = nil
 local last_transaction_was_withdrawal = false
 
--- Finding nearest ATM
+-- Finding nearest ATM & Prompt handling Consolidated
 CreateThread(function()
     while true do
+        local sleep = 1000
         nearest_atm = 0
 
-        local position = GetEntityCoords(GetPlayerPed(PlayerId()))
-        for _, hash in pairs(ATM_HASHES) do
-            nearest_atm = GetClosestObjectOfType(position.x, position.y, position.z, PROMPT_DISTANCE, hash, false, false, false)
+        local position = GetEntityCoords(PlayerPedId())
+        if not atm_scaleform then
+            for _, hash in pairs(ATM_HASHES) do
+                nearest_atm = GetClosestObjectOfType(position.x, position.y, position.z, PROMPT_DISTANCE, hash, false, false, false)
 
-            if nearest_atm ~= 0 then
-                break
+                if nearest_atm ~= 0 then
+                    break
+                end
             end
         end
 
-        Wait(500)
-    end
-end)
-
--- Prompt check
-CreateThread(function()
-    while true do
-        if nearest_atm ~= 0 then
+        if nearest_atm ~= 0 and not atm_scaleform then
+            sleep = 0
             BeginTextCommandDisplayHelp("STRING")
             AddTextComponentSubstringPlayerName("Press ~INPUT_CONTEXT~ to access the ATM.")
             EndTextCommandDisplayHelp(0, false, true, -1)
         end
 
-        Wait(0)
+        Wait(sleep)
     end
 end)
 
 local function UpdateBankBalance()
     if not atm_scaleform then return end
 
-    ExtendedM.Utility.CallScaleformMethod(atm_scaleform, 'DISPLAY_BALANCE', GetPlayerName(PlayerId()),
-        'Account balance', ExtendedM.PlayerData.bank)
+    ExtendedM.DataSyncer:SyncData()
+    ExtendedM.DataSyncer:Wait()
+
+    ExtendedM.Utility.CallScaleformMethod(atm_scaleform, 'DISPLAY_BALANCE', GetPlayerName(PlayerId()), 'Account balance', ExtendedM.DataSyncer.Data.bank)
 end
 
 local function OpenMainMenu()
@@ -190,7 +185,7 @@ local function OpenWithDepositScreens(screen)
     local text = current_screen == SCREENS.WITHDRAW and "Select the amount you wish to withdraw from this account." or "Select the amount you wish to deposit into this account."
     ExtendedM.Utility.CallScaleformMethod(atm_scaleform, "SET_DATA_SLOT", 0, text)
 
-    SetupATMMoneyButtons(current_screen == SCREENS.WITHDRAW and ExtendedM.PlayerData.bank or ExtendedM.PlayerData.cash)
+    SetupATMMoneyButtons(current_screen == SCREENS.WITHDRAW and ExtendedM.DataSyncer.Data.bank or ExtendedM.DataSyncer.Data.cash)
     ExtendedM.Utility.CallScaleformMethod(atm_scaleform, "DISPLAY_CASH_OPTIONS")
 end
 
@@ -252,13 +247,13 @@ end
 local function HandleInput(selection)
     if current_screen == SCREENS.MAIN then
         if selection == 1 then -- withdrawal screen
-            if ExtendedM.PlayerData.bank > 0 then
+            if ExtendedM.DataSyncer.Data.bank > 0 then
                 OpenWithDepositScreens(SCREENS.WITHDRAW)
             else
                 DisplayATMError("You have insufficient funds to make a withdrawal.")
             end
         elseif selection == 2 then
-            if ExtendedM.PlayerData.cash > 0 then
+            if ExtendedM.DataSyncer.Data.cash > 0 then
                 OpenWithDepositScreens(SCREENS.DEPOSIT)
             else
                 DisplayATMError("You have insufficient cash to make a deposit.")

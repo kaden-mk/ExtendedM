@@ -1,5 +1,3 @@
-ExtendedM = ExtendedM or {}
-
 local Math = {}
 
 ---Takes a rotation and returns a direction.

@@ -1,10 +1,11 @@
 ---@diagnostic disable: param-type-mismatch
 
-DataManager = {}
+local DataManager = {}
 
 local template_data = {
     cash = 100,
-    bank = 0 
+    bank = 0,
+    weapons = {}
 }
 
 local players = {}
@@ -42,34 +43,50 @@ function DataManager.Get(source)
     return players[source]
 end
 
+local function ReconcileData(saved, template)
+    local reconciled = {}
+
+    for key, default_value in pairs(template) do
+        local saved_value = saved and saved[key]
+
+        if type(default_value) == "table" then
+            reconciled[key] = ReconcileData(
+                type(saved_value) == "table" and saved_value or {},
+                default_value
+            )
+        else
+            reconciled[key] = saved_value ~= nil and saved_value or default_value
+        end
+    end
+
+    return reconciled
+end
+
 ---Loads a player's data
 ---@param source number Player's server ID
 ---@return table | string data
 function DataManager.Load(source)
     local identifier = GetPlayerIdentifierByType(tostring(source), "license")
-
     if not identifier then return "Failed to retrieve a unique License identifier" end
 
     identifier = string.gsub(identifier, ":", "", 1)
 
     local raw_data = LoadResourceFile(GetCurrentResourceName(), "data/" .. identifier .. ".json")
-    local player_data
+    local save_data
 
     if raw_data and raw_data ~= "" then
-        player_data = {
-            identifier = identifier,
-            save_data = json.decode(raw_data)
-        }
-        print("[DATA] Loaded data for " .. identifier)
+        local decoded = json.decode(raw_data)
+        save_data = ReconcileData(decoded, template_data)
+        print("[DATA] Loaded & reconciled data for " .. identifier)
     else
-        player_data = {
-            identifier = identifier,
-            save_data = template_data      
-        }
-        print("[DATA] Created data for " .. identifier)
+        save_data = ReconcileData({}, template_data)
+        print("[DATA] Created new data for " .. identifier)
     end
 
-    return player_data
+    return {
+        identifier = identifier,
+        save_data = save_data
+    }
 end
 
 ---Gets a specified key from a player's data
@@ -104,6 +121,22 @@ function DataManager.SetKey(source, name, value, callback)
     return true
 end
 
+---Syncs a client's data with the server.
+---@param source number Player's server ID
+function DataManager.SyncData(source)
+    local player_data = DataManager.Get(source)
+    if not player_data then return end
+
+    TriggerClientEvent("ExtendedM:DataSyncer:SyncData", source, player_data.save_data)
+end
+
+RegisterNetEvent("ExtendedM:DataManager:SyncData")
+AddEventHandler("ExtendedM:DataManager:SyncData", function()
+    local source = source
+
+    DataManager.SyncData(source)
+end)
+
 AddEventHandler('playerConnecting', function(_, set_kick_reason, deferrals)
     deferrals.defer()
     deferrals.update("Loading player's JSON data...")
@@ -131,8 +164,6 @@ AddEventHandler('playerJoining', function(old_source)
 
     players[source] = data
     temp_data[old_source] = nil
-
-    TriggerClientEvent('ExtendedM:Client:SetInitialData', source, data.save_data)
 end)
 
 AddEventHandler('onResourceStart', function(resourceName)
@@ -148,7 +179,6 @@ AddEventHandler('onResourceStart', function(resourceName)
             
             if player_data then
                 players[playerId] = player_data
-                TriggerClientEvent('ExtendedM:Client:SetInitialData', playerId, player_data.save_data)
             else
                 print("[DATA] Could not load data for " .. playerId .. " on resource start")
             end
@@ -181,12 +211,11 @@ RegisterCommand('setmoney', function(source, args, rawCommand)
         return
     end
     
-    local cash_success = DataManager.SetKey(target, "cash", cash, function(value)
-        TriggerClientEvent('ExtendedM:Client:UpdateBank', source, value)
-    end)
-    local bank_success = DataManager.SetKey(target, "bank", bank, function(value)
-        TriggerClientEvent('ExtendedM:Client:UpdateCash', source, value)
-    end)
+    local cash_success = DataManager.SetKey(target, "cash", cash)
+    local bank_success = DataManager.SetKey(target, "bank", bank)
+
+    DataManager.SyncData(source)
+    TriggerClientEvent("ExtendedM:Client:UpdateNativeData", source)
     
     if cash_success and bank_success then
         local msg = string.format("Set Player %s's money: Cash $%d | Bank $%d", GetPlayerName(target), cash, bank)

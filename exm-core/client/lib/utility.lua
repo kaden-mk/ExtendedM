@@ -193,7 +193,7 @@ end
 ---Spawns a vehicle and teleports the player inside
 ---@param model_name string The vehicle to spawn using the model name
 ---@param replace_current_vehicle boolean? If the player is already in a vehicle it'll get replaced if its true
----@return boolean Returns if it successfully found the vehicle
+---@return boolean boolean Returns if it successfully found the vehicle
 function ExtendedM.Utility.SpawnVehicleForPlayer(model_name, replace_current_vehicle)
     local model_hash = GetHashKey(model_name)
 
@@ -222,6 +222,47 @@ function ExtendedM.Utility.SpawnVehicleForPlayer(model_name, replace_current_veh
     SetModelAsNoLongerNeeded(model_hash)
 
     return true
+end
+
+---Replaces a player's ped model
+---@param model_name string The new model to replace the old one with
+---@return boolean boolean Returns if it successfully found the model
+function ExtendedM.Utility.ReplacePlayerPed(model_name)
+    local model_hash = GetHashKey(model_name)
+
+    if not IsModelInCdimage(model_hash) or not IsModelAPed(model_hash) then
+        return false
+    end
+
+    RequestModel(model_hash)
+    while not HasModelLoaded(model_hash) do
+        Wait(0)
+    end
+
+    SetPlayerModel(PlayerId(), model_hash)
+    SetModelAsNoLongerNeeded(model_hash)
+
+    return true
+end
+
+---Dynamically generate ~INPUT_xyz~ text from custom key mappings
+---@param command string
+function ExtendedM.Utility.HashString(command)
+    return ('~INPUT_%x~'):format(joaat(command) % 2^32):upper()
+end
+
+---Creates a sequential numeric array from min to max
+---@param min integer The starting value of the range
+---@param max integer The ending value of the range
+---@return table<integer> range A numerically indexed table containing all values from min to max
+function ExtendedM.Utility.MakeRange(min, max)
+    local t = {}
+
+    for i = min, max do
+        t[#t + 1] = i
+    end
+
+    return t
 end
 
 CreateThread(function()
