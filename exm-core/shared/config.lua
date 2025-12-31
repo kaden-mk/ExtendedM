@@ -5,9 +5,9 @@ ExtendedM.Config = {
         Freeze = false
     },
     Weather = {
-        Dynamic = true,
+        Dynamic = true, -- toggle between dynamic and static weather
         Transition = 30.0, -- seconds
-        Cycle = math.random(2, 15), -- minutes
+        Cycle = {2, 15}, -- min & max minutes
         Types = {
             "EXTRASUNNY",
             "CLEAR",

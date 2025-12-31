@@ -1,5 +1,6 @@
 local last_weather_change = 0
 local current_weather
+local cycle = math.random(ExtendedM.Config.Weather.Cycle[1], ExtendedM.Config.Weather.Cycle[2])
 local total_minutes = ExtendedM.Config.Time.Default
 
 local function ChangeWeather()
@@ -19,7 +20,7 @@ local function ChangeWeather()
     end
 
     last_weather_change = GetGameTimer()
-    ExtendedM.Config.Weather.Cycle = math.random(2, 15)
+    cycle = math.random(ExtendedM.Config.Weather.Cycle[1], ExtendedM.Config.Weather.Cycle[2])
 
     TriggerClientEvent("ExtendedM:Client:SyncWeather", -1, current_weather)
 end
@@ -32,9 +33,11 @@ local function ConvertToHours()
 end
 
 CreateThread(function()
+    ChangeWeather()
+
     while true do      
         if ExtendedM.Config.Weather.Dynamic then
-            if GetGameTimer() - last_weather_change > (ExtendedM.Config.Weather.Cycle * 60 * 1000) then
+            if GetGameTimer() - last_weather_change > (cycle * 60 * 1000) then
                 ChangeWeather()
             end 
         end
