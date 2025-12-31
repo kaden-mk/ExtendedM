@@ -1,13 +1,13 @@
 ExtendedM.Config = {
     Time = {
         Default = 480, -- 8:00
-        MsPerMinute = 2000, -- 2 secs = 1 in-game minute
+        MsPerMinute = 2000, -- 2 seconds = 1 in-game minute
         Freeze = false
     },
     Weather = {
         Dynamic = true,
-        Transition = 30.0,
-        Cycle = math.random(120, 900),
+        Transition = 30.0, -- seconds
+        Cycle = math.random(2, 15), -- minutes
         Types = {
             "EXTRASUNNY",
             "CLEAR",

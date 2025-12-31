@@ -18,8 +18,8 @@ local function ChangeWeather()
         current_weather = randomized
     end
 
-    last_weather_change = os.time()
-    ExtendedM.Config.Weather.Cycle = math.random(120, 900)
+    last_weather_change = GetGameTimer()
+    ExtendedM.Config.Weather.Cycle = math.random(2, 15)
 
     TriggerClientEvent("ExtendedM:Client:SyncWeather", -1, current_weather)
 end
@@ -34,7 +34,7 @@ end
 CreateThread(function()
     while true do      
         if ExtendedM.Config.Weather.Dynamic then
-            if os.time() - last_weather_change > ExtendedM.Config.Weather.Cycle then
+            if GetGameTimer() - last_weather_change > (ExtendedM.Config.Weather.Cycle * 60 * 1000) then
                 ChangeWeather()
             end 
         end

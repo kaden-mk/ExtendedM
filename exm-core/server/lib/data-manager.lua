@@ -79,7 +79,7 @@ function DataManager.Load(source)
         save_data = ReconcileData(decoded, template_data)
         print("[DATA] Loaded & reconciled data for " .. identifier)
     else
-        save_data = ReconcileData({}, template_data)
+        save_data = template_data
         print("[DATA] Created new data for " .. identifier)
     end
 
@@ -94,8 +94,7 @@ end
 ---@param name string Name of the key
 ---@return any key
 function DataManager.GetKey(source, name)
-    local player_data = players[source]
-
+    local player_data = DataManager.Get(source)
     if not player_data then return end
 
     return player_data.save_data[name] or nil
@@ -108,8 +107,7 @@ end
 ---@param callback? function Callback function
 ---@return boolean success
 function DataManager.SetKey(source, name, value, callback)
-    local player_data = players[source]
-
+    local player_data = DataManager.Get(source)
     if not player_data then return false end
 
     player_data.save_data[name] = value
@@ -132,8 +130,6 @@ end
 
 RegisterNetEvent("ExtendedM:DataManager:SyncData")
 AddEventHandler("ExtendedM:DataManager:SyncData", function()
-    local source = source
-
     DataManager.SyncData(source)
 end)
 
