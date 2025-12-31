@@ -1,26 +1,16 @@
+local Weather = ExtendedM.Config.Weather
+local Time = ExtendedM.Config.Time
+
 local last_weather_change = 0
 local current_weather
-local cycle = math.random(ExtendedM.Config.Weather.Cycle[1], ExtendedM.Config.Weather.Cycle[2])
-local total_minutes = ExtendedM.Config.Time.Default
+local cycle = 0
+local total_minutes = Time.Default
 
-local function ChangeWeather()
-    if current_weather == "THUNDER" or current_weather == "RAIN" then
-        current_weather = "CLEARING"
-    elseif current_weather == "CLEARING" then
-        current_weather = "CLOUDS"
-    else
-        math.randomseed(os.time())
-        local randomized = ExtendedM.Config.Weather.Types[math.random(1, #ExtendedM.Config.Weather.Types)]
-
-        while randomized == current_weather do
-            randomized = ExtendedM.Config.Weather.Types[math.random(1, #ExtendedM.Config.Weather.Types)]
-        end
-
-        current_weather = randomized
-    end
+local function ChangeWeather(name)
+    current_weather = name or ExtendedM.Math.Weighted(Weather.Types[current_weather])
 
     last_weather_change = GetGameTimer()
-    cycle = math.random(ExtendedM.Config.Weather.Cycle[1], ExtendedM.Config.Weather.Cycle[2])
+    cycle = math.random(Weather.Cycle[1], Weather.Cycle[2])
 
     TriggerClientEvent("ExtendedM:Client:SyncWeather", -1, current_weather)
 end
@@ -33,10 +23,10 @@ local function ConvertToHours()
 end
 
 CreateThread(function()
-    ChangeWeather()
+    ChangeWeather(Weather.Default)
 
     while true do      
-        if ExtendedM.Config.Weather.Dynamic then
+        if Weather.Dynamic then
             if GetGameTimer() - last_weather_change > (cycle * 60 * 1000) then
                 ChangeWeather()
             end 
@@ -48,7 +38,7 @@ end)
 
 CreateThread(function()
     while true do
-        if not ExtendedM.Config.Time.Freeze then
+        if not Time.Freeze then
             total_minutes = total_minutes + 1
 
             if total_minutes > 1439 then
@@ -58,7 +48,7 @@ CreateThread(function()
             TriggerClientEvent("ExtendedM:Client:SyncTime", -1, ConvertToHours())
         end
 
-        Wait(ExtendedM.Config.Time.MsPerMinute)
+        Wait(Time.MsPerMinute)
     end
 end)
 
