@@ -6,9 +6,10 @@ description "Testing ground"
 author "VOLTA"
 version "1.0.0"
 
+use_experimental_fxv2_oal 'yes'
+
 dependencies {
-	'exm-interface',
-	'exm-core'
+	'exm-interface'
 }
 
 shared_scripts {
@@ -16,6 +17,7 @@ shared_scripts {
 }
 
 client_scripts {
+    '@exm-interface/main.lua',
 	'client/*.lua'
 }
 

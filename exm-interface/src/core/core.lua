@@ -9,6 +9,9 @@ local key_hold_time = 0
 local repeat_delay = 400
 local repeat_rate = 80
 
+local last_mouse_x = 0.0
+local last_mouse_y = 0.0
+
 ---Registers a new menu.
 ---@param id any | nil
 ---@param callback function | nil
@@ -50,7 +53,6 @@ function Core.SetVisible(id, visible)
     end
 end
 
-
 ---Sets the disabled controls for a specific menu.
 ---@param id any
 ---@param controls table
@@ -63,6 +65,12 @@ end
 function Core.GoToSubmenu(submenu_id)
     State.menu_stack[#State.menu_stack + 1] = State.current_menu_id
     State.current_menu_id = submenu_id
+    
+    if not State.selections[submenu_id] then
+        State.selections[submenu_id] = 1
+    end
+
+    Input.ClearState()
 end
 
 ---Navigates back to the parent menu.
@@ -187,39 +195,42 @@ function Core.ProcessNavigation(max_items)
     State.last_selections[id] = State.selections[id]
     
     local current_time = GetGameTimer()
-    
-    local function move_up()
-        State.selections[id] = State.selections[id] - 1
-        if State.selections[id] < 1 then State.selections[id] = max_items end
-        PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
-    end
-    
-    local function move_down()
-        State.selections[id] = State.selections[id] + 1
-        if State.selections[id] > max_items then State.selections[id] = 1 end
-        PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
-    end
+    local direction = 0
     
     if Input.state.up_just then
-        move_up()
+        PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+        direction = -1
         key_held = "up"
         key_hold_time = current_time + repeat_delay
     elseif Input.state.down_just then
-        move_down()
+        PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+        direction = 1
         key_held = "down"
         key_hold_time = current_time + repeat_delay
     elseif key_held == "up" and Input.state.up_pressed then
         if current_time >= key_hold_time then
-            move_up()
+            PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+            direction = -1
             key_hold_time = current_time + repeat_rate
         end
     elseif key_held == "down" and Input.state.down_pressed then
         if current_time >= key_hold_time then
-            move_down()
+            PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+            direction = 1
             key_hold_time = current_time + repeat_rate
         end
     else
         key_held = nil
+    end
+    
+    if direction ~= 0 then
+        State.ignore_mouse = true
+        local new_selection = State.selections[id] + direction
+        
+        if new_selection < 1 then new_selection = max_items end
+        if new_selection > max_items then new_selection = 1 end
+        
+        State.selections[id] = new_selection
     end
     
     if Input.state.back_just then
@@ -245,35 +256,109 @@ CreateThread(function()
             State.item_count = 0
             State.current_description = nil
             local id = State.current_menu_id
-            local menu_function = State.menus[id]
             
             Core.UpdatePagination(id, State.selections[id] or 1, State.total_items[id] or 0)
             
-            if menu_function then
-                menu_function()
+            local mx = Input.state.mouse_x
+            local my = Input.state.mouse_y
+            
+            local cursor_visible = true
+            State.mouse_visible = cursor_visible
+
+            if cursor_visible then
+                State.mouse_moved = (math.abs(mx - last_mouse_x) > 0.005) or (math.abs(my - last_mouse_y) > 0.005)
+                last_mouse_x = mx
+                last_mouse_y = my
+                
+                if State.mouse_moved then
+                    State.ignore_mouse = false
+                end
+            else
+                State.mouse_moved = false
             end
-            
-            State.total_items[id] = State.item_count
-            
+
+            local current_pag = State.pagination[id]
+            State.render_min = current_pag.min
+            State.render_max = current_pag.max
+
+            if not State.buffered_items[id] then
+                local menu_function = State.menus[id]
+
+                State.is_building = true
+                State.build_item_count = 0
+                State.buffered_items[id] = {} 
+                
+                if menu_function then
+                    menu_function()
+                end
+                
+                State.is_building = false
+                State.total_items[id] = State.build_item_count
+
+                local groups = {}
+                local current_group = nil
+
+                for _, item in ipairs(State.buffered_items[id]) do
+                    local is_indexed = (item.index ~= nil)
+                    local group_type = is_indexed and "indexed" or "static"
+                    
+                    if not current_group or current_group.type ~= group_type then
+                        current_group = { type = group_type, items = {}, start_index = item.index or 0 }
+                        table.insert(groups, current_group)
+                    end
+                    
+                    table.insert(current_group.items, item)
+                end
+                
+                State.render_groups[id] = groups
+            end
+
+            if State.render_groups[id] then
+                for _, group in ipairs(State.render_groups[id]) do
+                    if group.type == "static" then
+                        for _, item in ipairs(group.items) do
+                            item.render(item)
+                        end
+                    else
+                        local first_index = group.items[1].index
+                        local last_index = group.items[#group.items].index
+
+                        local global_start = math.max(first_index, State.render_min)
+                        local global_end = math.min(last_index, State.render_max)
+
+                        if global_start <= global_end then
+                            for i = global_start, global_end do
+                                local local_idx = i - first_index + 1
+                                local item = group.items[local_idx]
+                                if item then
+                                    item.render(item)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+                        
             if State.pending_subtitle then
-                Renderer.DrawSubtitleBar(State.pending_subtitle.text, State.selections[id] or 1, State.item_count, State.pending_subtitle.x, State.pending_subtitle.y)
+                Renderer.DrawSubtitleBar(State.pending_subtitle.text, State.selections[id] or 1, State.total_items[id], State.pending_subtitle.x, State.pending_subtitle.y)
             end
             
             if State.current_menu_id == id then
-                if State.item_count > MAX_VISIBLE_ITEMS then
+                if State.total_items[id] > MAX_VISIBLE_ITEMS then
                     local scroll_height = Renderer.DrawScrollIndicator(State.current_x, State.current_y)
                     State.current_y = State.current_y + scroll_height
                 end
                 
-                if State.current_description then
-                    Renderer.DrawDescription(State.current_description, State.current_x, State.current_y + Theme.sizes.padding)
-                end
-                
-                Renderer.DrawControlHints()
-                Core.ProcessNavigation(State.item_count)
+                Core.ProcessNavigation(State.total_items[id])
             else
                 State.last_selections[State.current_menu_id] = 0
             end
+
+            if State.current_description then
+                Renderer.DrawDescription(State.current_description, State.current_x, State.current_y + Theme.sizes.padding)
+            end
+
+            Renderer.DrawControlHints()
         else
             wait = 100
         end

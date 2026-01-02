@@ -28,7 +28,7 @@ Input = {
 }
 
 ---Updates input state once per frame (called by main loop).
----@param disabled_controls table|nil
+---@param disabled_controls table | nil
 function Input.UpdateState(disabled_controls)
     Input.state.up_just = IsDisabledControlJustPressed(0, 172) or IsControlJustPressed(0, 241)
     Input.state.up_pressed = IsDisabledControlPressed(0, 172) or IsControlPressed(0, 241)
@@ -61,8 +61,23 @@ function Input.UpdateState(disabled_controls)
     Input.state.mouse_y = GetControlNormal(0, 240)
 end
 
+---Clears all input state flags (Used when switching menus to prevent double-input).
+function Input.ClearState()
+    Input.state.up_just = false
+    Input.state.up_pressed = false
+    Input.state.down_just = false
+    Input.state.down_pressed = false
+    Input.state.left_just = false
+    Input.state.left_pressed = false
+    Input.state.right_just = false
+    Input.state.right_pressed = false
+    Input.state.select_just = false
+    Input.state.back_just = false
+    Input.state.mouse_select_just = false
+end
+
 ---Disables game controls while menu is open.
----@param controls table|nil
+---@param controls table | nil
 function Input.DisableControls(controls)
     local controls_to_disable = controls or {
         1, 2, 3, 4, 5, 6, 24, 25, 37, 44, 45, 47, 58, 59, 71, 72, 91, 92, 99, 100, 

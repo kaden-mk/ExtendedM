@@ -2,14 +2,31 @@
 
 local DataManager = {}
 
-local template_data = {
+local registered_keys = {
     cash = 100,
     bank = 0,
     weapons = {}
 }
 
 local players = {}
-local temp_data = {}
+
+---Sets up a player in the cache
+function DataManager.Setup(source, data)
+    players[source] = data
+end
+
+---Removes a player from the cache
+function DataManager.Remove(source)
+    players[source] = nil
+end
+
+---Registers a new key for player data.
+---@param key string The key name.
+---@param default_value any The default value for the key.
+function DataManager.RegisterKey(key, default_value)
+    registered_keys[key] = default_value
+    print("[DATA] Registered key: " .. key)
+end
 
 ---Saves a player's data
 ---@param source number Player's server ID
@@ -76,10 +93,10 @@ function DataManager.Load(source)
 
     if raw_data and raw_data ~= "" then
         local decoded = json.decode(raw_data)
-        save_data = ReconcileData(decoded, template_data)
+        save_data = ReconcileData(decoded, registered_keys)
         print("[DATA] Loaded & reconciled data for " .. identifier)
     else
-        save_data = template_data
+        save_data = registered_keys
         print("[DATA] Created new data for " .. identifier)
     end
 
@@ -100,7 +117,7 @@ function DataManager.GetKey(source, name)
     return player_data.save_data[name] or nil
 end
 
----Sets a specified key's value in a player's data
+---Sets a specified key's value in a player's data AND syncs it to client
 ---@param source number Player's server ID
 ---@param name string Name of the key
 ---@param value any New value of the key
@@ -111,6 +128,8 @@ function DataManager.SetKey(source, name, value, callback)
     if not player_data then return false end
 
     player_data.save_data[name] = value
+
+    TriggerClientEvent("ExtendedM:DataSyncer:UpdateKey", source, name, value)
 
     if callback then
         callback(value)
@@ -133,61 +152,7 @@ AddEventHandler("ExtendedM:DataManager:SyncData", function()
     DataManager.SyncData(source)
 end)
 
-AddEventHandler('playerConnecting', function(_, set_kick_reason, deferrals)
-    deferrals.defer()
-    deferrals.update("Loading player's JSON data...")
-
-    local player_data = DataManager.Load(source)
-
-    if type(player_data) == "string" then
-        set_kick_reason(player_data)
-        deferrals.done()
-        return
-    end
-
-    temp_data[source] = player_data
-    
-    deferrals.done()
-end)
-
-AddEventHandler('playerJoining', function(old_source)
-    old_source = tonumber(old_source)
-
-    if not old_source then return end
-
-    local data = temp_data[old_source]
-    if not data then return end
-
-    players[source] = data
-    temp_data[old_source] = nil
-end)
-
-AddEventHandler('onResourceStart', function(resourceName)
-    if resourceName ~= GetCurrentResourceName() then return end
-
-    local playerList = GetPlayers()
-
-    for _, playerIdStr in ipairs(playerList) do
-        local playerId = tonumber(playerIdStr)
-
-        if playerId then
-            local player_data = DataManager.Load(playerId)
-            
-            if player_data then
-                players[playerId] = player_data
-            else
-                print("[DATA] Could not load data for " .. playerId .. " on resource start")
-            end
-        end
-    end
-end)
-
-AddEventHandler('playerDropped', function()
-    DataManager.Save(source) 
-    players[source] = nil
-end)
-
-RegisterCommand('setmoney', function(source, args, rawCommand)
+RegisterCommand('setmoney', function(source, args)
     if source ~= 0 and not IsPlayerAceAllowed(source, 'command.setmoney') then
         TriggerClientEvent('chat:addMessage', source, { args = { '^1ERROR: You do not have permission to use this command.' } })
         return
@@ -210,8 +175,7 @@ RegisterCommand('setmoney', function(source, args, rawCommand)
     local cash_success = DataManager.SetKey(target, "cash", cash)
     local bank_success = DataManager.SetKey(target, "bank", bank)
 
-    DataManager.SyncData(source)
-    TriggerClientEvent("ExtendedM:Client:UpdateNativeData", source)
+    TriggerClientEvent("ExtendedM:Client:UpdateNativeData", target)
     
     if cash_success and bank_success then
         local msg = string.format("Set Player %s's money: Cash $%d | Bank $%d", GetPlayerName(target), cash, bank)

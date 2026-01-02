@@ -1,8 +1,6 @@
 EXMDebug = EXMDebug or {}
 
----@type EXMInterface
-local Interface = exports["exm-interface"]:EXMInterface()
-local Native = Interface.Native
+local Native = EXMInterface.Native
 
 local Utility = {}
 

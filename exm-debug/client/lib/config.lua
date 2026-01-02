@@ -19,6 +19,10 @@ EXMDebug.Config = {
 
             VEHICLES = {
                 MAIN = "EXM_DEBUG_VEHICLE_MENU"
+            },
+            
+            WORLD = {
+                MAIN = "EXM_DEBUG_WORLD_MENU"
             }
         }
     },

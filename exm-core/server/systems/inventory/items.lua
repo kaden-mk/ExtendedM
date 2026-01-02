@@ -1,0 +1,3 @@
+ExtendedM.Inventory.Items = {
+
+}

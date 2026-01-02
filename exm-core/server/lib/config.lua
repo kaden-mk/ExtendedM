@@ -1,0 +1,3 @@
+ExtendedM.Config.Hooks = {
+    
+}

@@ -1,9 +1,5 @@
----@type EXMInterface
-local Interface = exports["exm-interface"]:EXMInterface()
----@type ExtendedM
+local Native = EXMInterface.Native
 local ExtendedM = exports["exm-core"]:ExtendedM()
-
-local Native = Interface.Native
 
 local Config = EXMDebug.Config
 local Utility = EXMDebug.Utility
@@ -15,8 +11,8 @@ local sub = Native.SubMenu
 local head = Native.Header
 local button = Native.Button
 local list = Native.ListItem
+local listi = Native.ListIndex
 local range = ExtendedM.Utility.MakeRange
-local label = Native.Label
 
 menu(player_menu_names.PED_COMPONENTS, function()
     head(Config.HEADER_TEXT, "Ped Components")
@@ -27,24 +23,25 @@ menu(player_menu_names.PED_COMPONENTS, function()
         local max_drawable = GetNumberOfPedDrawableVariations(ped, component_id) - 1
         if max_drawable < 0 then goto continue end
 
-        local drawable_items = range(0, max_drawable)
         local current_drawable = GetPedDrawableVariation(ped, component_id)
 
-        local drawable = list(
+        local drawable = listi(
             "Component " .. component_id .. " Drawable",
-            drawable_items,
-            current_drawable + 1
+            0,
+            max_drawable,
+            1,
+            current_drawable
         )
 
-        if drawable.changed then
+        drawable:On("change", function(value)
             SetPedComponentVariation(
                 ped,
                 component_id,
-                drawable_items[drawable.index],
+                value,
                 0,
                 0
             )
-        end
+        end)
 
         local max_texture = GetNumberOfPedTextureVariations(
             ped,
@@ -54,24 +51,25 @@ menu(player_menu_names.PED_COMPONENTS, function()
 
         if max_texture < 0 then goto continue end
 
-        local texture_items = range(0, max_texture)
         local current_texture = GetPedTextureVariation(ped, component_id)
 
-        local texture = list(
+        local texture = listi(
             "Component " .. component_id .. " Texture",
-            texture_items,
-            current_texture + 1
+            0,
+            max_texture,
+            1,
+            current_texture
         )
 
-        if texture.changed then
+        texture:On("change", function(value)
             SetPedComponentVariation(
                 ped,
                 component_id,
                 GetPedDrawableVariation(ped, component_id),
-                texture_items[texture.index],
+                value,
                 0
             )
-        end
+        end)
 
         ::continue::
     end
@@ -95,25 +93,23 @@ menu(player_menu_names.PED_PROPS, function()
 
         if max_prop < 0 then goto continue end
 
-        local prop_items = range(-1, max_prop)
-        local current_prop = GetPedPropIndex(ped, prop_id)
-
         local label = prop_names[prop_id] or ("Prop " .. prop_id)
-
-        local prop = list(
+        
+        local prop = listi(
             label,
-            prop_items,
-            current_prop + 2
+            -1,
+            max_prop,
+            1,
+            GetPedPropIndex(ped, prop_id)
         )
 
-        if prop.changed then
-            local value = prop_items[prop.index]
+        prop:On("change", function(value)
             if value == -1 then
                 ClearPedProp(ped, prop_id)
             else
                 SetPedPropIndex(ped, prop_id, value, 0, true)
             end
-        end
+        end)
 
         local selected_drawable = GetPedPropIndex(ped, prop_id)
         if selected_drawable ~= -1 then
@@ -125,63 +121,54 @@ menu(player_menu_names.PED_PROPS, function()
 
             if texture_count <= 1 then goto continue end
 
-            local texture_items = range(0, texture_count - 1)
             local current_texture = GetPedPropTextureIndex(ped, prop_id)
-
             local texture_label = prop_names[prop_id] .. " Texture" or ("Prop " .. prop_id .. " Texture")
 
-            local texture = list(
+            local texture = listi(
                 texture_label,
-                texture_items,
-                current_texture + 1
+                0,
+                texture_count - 1,
+                1,
+                current_texture
             )
 
-            if texture.changed then
+            texture:On("change", function(value)
                 SetPedPropIndex(
                     ped,
                     prop_id,
                     selected_drawable,
-                    texture_items[texture.index],
+                    value,
                     true
                 )
-            end
+            end)
         end
 
         ::continue::
     end
 end)
 
-local face_feature_indices = {}
-for i = 1, 20 do
-    face_feature_indices[i] = 4
-end
-
 menu(player_menu_names.PED_FACE_FEATURES, function()
     head(Config.HEADER_TEXT, "Face Features")
-    label("Note: This is only for the freemode peds.")
 
     local ped = PlayerPedId()
-    local feature_items = { -1.0, -0.5, -0.25, 0.0, 0.25, 0.5, 1.0 }
 
     for feature_id = 0, 19 do
-        local index = face_feature_indices[feature_id + 1]
-
         -- this should obviously use a slider
-        local feature = list(
+        local feature = listi(
             "Feature " .. feature_id,
-            feature_items,
-            index
+            -1.0,
+            1.0,
+            0.01,
+            0
         )
 
-        if feature.changed then
-            face_feature_indices[feature_id + 1] = feature.index
-
+        feature:On("change", function(value)
             SetPedFaceFeature(
                 ped,
                 feature_id,
-                feature_items[feature.index]
+                value
             )
-        end
+        end)
     end
 end)
 
@@ -191,59 +178,63 @@ local shape_mix_index = 3
 
 menu(player_menu_names.PED_FACE_BLEND, function()
     head(Config.HEADER_TEXT, "Ped Face Blend")
-    label("Note: This is only for the freemode peds.")
 
     local ped = PlayerPedId()
-    local parent_items = range(0, 45)
-    local mix_items = { 0.0, 0.25, 0.5, 0.75, 1.0 }
 
-    local shape_father = list("Shape Father", parent_items, shape_father_index)
-    local shape_mother = list("Shape Mother", parent_items, shape_mother_index)
-    local shape_mix = list("Shape Mix", mix_items, shape_mix_index)
+    local shape_father = listi("Shape Father", 0, 45, 1, 0)
+    local shape_mother = listi("Shape Mother", 0, 45, 1, 0)
+    local shape_mix = listi("Shape Mix", 0, 1, 0.01, 0)
 
-    shape_father_index = shape_father.index
-    shape_mother_index = shape_mother.index
-    shape_mix_index = shape_mix.index
-
-    if shape_father.changed or shape_mother.changed or shape_mix.changed then
+    local function update_blend_data()
         SetPedHeadBlendData(
             ped,
-            parent_items[shape_father.index],
-            parent_items[shape_mother.index],
+            shape_father_index + 1,
+            shape_mother_index + 1,
             0,
-            parent_items[shape_father.index],
-            parent_items[shape_mother.index],
+            shape_father_index + 1,
+            shape_mother_index + 1,
             0,
-            mix_items[shape_mix.index],
-            mix_items[shape_mix.index],
+            shape_mix_index,
+            shape_mix_index,
             0.0,
             false
         )
     end
+
+    shape_father:On("change", function(index)
+        shape_father_index = index
+        update_blend_data()
+    end)
+
+    shape_mother:On("change", function(index)
+        shape_mother_index = index
+        update_blend_data()
+    end)
+
+    shape_mix:On("change", function(index)
+        shape_mix_index = index
+        update_blend_data()
+    end)
 end)
 
 local function reset_player_ped_features()
     shape_father_index = 1
     shape_mother_index = 1
     shape_mix_index = 3
-
-    for i = 1, 20 do
-        face_feature_indices[i] = 4
-    end
 end
 
 menu(player_menu_names.PED_CUSTOMIZATION, function()
     head(Config.HEADER_TEXT, "Ped Customization")
 
     local change_ped = button("Change Player Ped", "Changes the player's ped depending on the model input.")
-    if change_ped.clicked then
+    change_ped:On("click", function()
         local ped_to_spawn = ExtendedM.Utility.OnScreenKeyboardInput("Ped:", "", 20)
         if ped_to_spawn == nil then return end
 
         reset_player_ped_features()
 
         ExtendedM.Utility.ReplacePlayerPed(ped_to_spawn)
-    end
+    end)
 
     sub("Ped Components", player_menu_names.PED_COMPONENTS, "Modify the ped's components.")
     sub("Ped Props", player_menu_names.PED_PROPS, "Modify the ped's props.")

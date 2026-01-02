@@ -265,6 +265,38 @@ function ExtendedM.Utility.MakeRange(min, max)
     return t
 end
 
+---Teleports the player to their set waypoint
+function ExtendedM.Utility.TeleportToWaypoint()
+    local entity = PlayerPedId()
+    if IsPedInAnyVehicle(entity, false) then
+        entity = GetVehiclePedIsIn(entity, false)
+    end
+
+    local blip = GetFirstBlipInfoId(8)
+
+    if DoesBlipExist(blip) then
+        local coord = GetBlipInfoIdCoord(blip)
+        local path = false
+        local z
+
+        for i = 1, 1000 do
+            SetEntityCoordsNoOffset(entity, coord.x, coord.y, i + 0.0, false, false, false)
+            RequestCollisionAtCoord(coord.x, coord.y, i + 0.0)
+            Wait(0)
+            
+            path, z = GetGroundZFor_3dCoord(coord.x, coord.y, i + 0.0, 0)
+            if path then
+                SetEntityCoordsNoOffset(entity, coord.x, coord.y, z + 2.0, false, false, false)
+                break
+            end
+        end
+        
+        if not path then
+             SetEntityCoordsNoOffset(entity, coord.x, coord.y, 50.0, false, false, false)
+        end
+    end
+end
+
 CreateThread(function()
     while true do
         if is_input_blocked then

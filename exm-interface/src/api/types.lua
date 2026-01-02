@@ -1,29 +1,20 @@
----@class ButtonState
----@field clicked boolean
----@field is_hovering boolean
----@field hovered boolean
----@field unhovered boolean
+---@class UIItem
+---@field On fun(self: UIItem, event: string, callback: function): UIItem
 
----@class CheckboxState
----@field checked boolean
----@field clicked boolean
----@field is_hovering boolean
----@field hovered boolean
----@field unhovered boolean
----@field changed boolean
+---@class ButtonItem : UIItem
+---@field On fun(self: ButtonItem, event: "click"|"hover"|"unhover", callback: function): ButtonItem
 
----@class SubMenuState
----@field entered boolean
----@field is_hovering boolean
----@field hovered boolean
----@field unhovered boolean
+---@class CheckboxItem : UIItem
+---@field On fun(self: CheckboxItem, event: "change"|"hover"|"unhover", callback: fun(checked: boolean)): CheckboxItem
 
----@class ListItemState
----@field index number
----@field is_hovering boolean
----@field hovered boolean
----@field unhovered boolean
----@field changed boolean
+---@class ListItemItem : UIItem
+---@field On fun(self: ListItemItem, event: "change"|"hover"|"unhover", callback: fun(index: number, value: any)): ListItemItem
+
+---@class ListIndexItem : UIItem
+---@field On fun(self: ListIndexItem, event: "change"|"hover"|"unhover", callback: fun(value: number)): ListIndexItem
+
+---@class SubMenuItem : UIItem
+---@field On fun(self: SubMenuItem, event: "click"|"hover"|"unhover", callback: function): SubMenuItem
 
 ---@class ControlTemplates
 ---@field Default table
@@ -41,7 +32,6 @@
 ---@field ControlTemplates ControlTemplates
 ---@field IsVisible fun(id: any): boolean
 ---@field IsAnyMenuVisible fun(): boolean
----@field IsAnyMenuVisible fun(): boolean
 ---@field GoToSubmenu fun(submenu_id: any)
 ---@field GoBack fun(): boolean
 ---@field WentBack fun(id: any): boolean
@@ -49,11 +39,11 @@
 ---@field Exiting fun(): boolean
 ---@field Header fun(title: string, subtitle: string, r?: number, g?: number, b?: number, a?: number)
 ---@field SpriteHeader fun(dict: string, texture: string, subtitle: string)
----@field Label fun(text: string)
----@field Button fun(text: string, description?: string, offset_text?: string): ButtonState
----@field Checkbox fun(text: string, checked: boolean, description?: string): CheckboxState
----@field ListItem fun(text: string, items: table, current_index: number, description?: string): ListItemState
----@field SubMenu fun(text: string, submenu_id: any, description?: string): SubMenuState
+---@field Button fun(text: string, description?: string, offset_text?: string): ButtonItem
+---@field Checkbox fun(text: string, checked: boolean, description?: string, callback?: function): CheckboxItem
+---@field ListItem fun(text: string, items: table, current_index: number, description?: string, callback?: function): ListItemItem
+---@field ListIndex fun(text: string, min: number, max: number, step: number, index: number, description?: string, callback?: function): ListIndexItem
+---@field SubMenu fun(text: string, submenu_id: any, description?: string): SubMenuItem
 
 ---@class EXMInterface
 ---@field Native NativeUI

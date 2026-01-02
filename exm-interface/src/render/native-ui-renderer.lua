@@ -12,6 +12,14 @@ Renderer.instructional_scaleform = nil
 ---@param b number
 ---@param a number
 function Renderer.DrawRect(x, y, w, h, r, g, b, a)
+    if not x or not y or not w or not h then 
+        return 
+    end
+    r = r or 255
+    g = g or 255
+    b = b or 255
+    a = a or 255
+    
     DrawRect(x + w * 0.5, y + h * 0.5, w, h, r, g, b, a)
 end
 
@@ -28,11 +36,13 @@ end
 ---@param b number
 ---@param a number
 function Renderer.DrawSprite(dict, name, x, y, w, h, rot, r, g, b, a)
+    if not dict or not name then return end
+    
     if not HasStreamedTextureDictLoaded(dict) then
         RequestStreamedTextureDict(dict, true)
     end
     
-    DrawSprite(dict, name, x + w * 0.5, y + h * 0.5, w, h, rot or 0.0, r, g, b, a)
+    DrawSprite(dict, name, x + w * 0.5, y + h * 0.5, w, h, rot or 0.0, r or 255, g or 255, b or 255, a or 255)
 end
 
 ---Renders text on screen with alignment.
@@ -48,11 +58,13 @@ end
 ---@param font number | nil
 ---@param wrap_width number | nil
 function Renderer.DrawText(text, x, y, scale, r, g, b, a, align, font, wrap_width)
+    if not text then return end
+    
     SetTextFont(font or 0)
-    SetTextScale(scale, scale)
-    SetTextColour(r, g, b, a)
+    SetTextScale(scale or 0.35, scale or 0.35)
+    SetTextColour(r or 255, g or 255, b or 255, a or 255)
 
-    local finish_x = x
+    local finish_x = x or 0.0
     SetTextWrap(0.0, 1.0)
     SetTextCentre(false)
     SetTextRightJustify(false)
@@ -187,33 +199,41 @@ end
 function Renderer.DrawControlHints()
     if not Renderer.instructional_scaleform then
         Renderer.instructional_scaleform = RequestScaleformMovie("instructional_buttons")
+        Renderer.hints_built = false
     end
 
-    if not HasScaleformMovieLoaded(Renderer.instructional_scaleform) then return end
+    if not HasScaleformMovieLoaded(Renderer.instructional_scaleform) then 
+        Renderer.hints_built = false
+        return 
+    end
 
-    BeginScaleformMovieMethod(Renderer.instructional_scaleform, "CLEAR_ALL")
-    EndScaleformMovieMethod()
+    if not Renderer.hints_built then
+        BeginScaleformMovieMethod(Renderer.instructional_scaleform, "CLEAR_ALL")
+        EndScaleformMovieMethod()
 
-    BeginScaleformMovieMethod(Renderer.instructional_scaleform, "SET_CLEAR_SPACE")
-    ScaleformMovieMethodAddParamInt(200)
-    EndScaleformMovieMethod()
+        BeginScaleformMovieMethod(Renderer.instructional_scaleform, "SET_CLEAR_SPACE")
+        ScaleformMovieMethodAddParamInt(200)
+        EndScaleformMovieMethod()
 
-    BeginScaleformMovieMethod(Renderer.instructional_scaleform, "SET_DATA_SLOT")
-    ScaleformMovieMethodAddParamInt(0)
-    ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, 201, true))
-    BeginTextCommandScaleformString("HUD_INPUT2")
-    EndTextCommandScaleformString()
-    EndScaleformMovieMethod()
+        BeginScaleformMovieMethod(Renderer.instructional_scaleform, "SET_DATA_SLOT")
+        ScaleformMovieMethodAddParamInt(0)
+        ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, 201, true))
+        BeginTextCommandScaleformString("HUD_INPUT2")
+        EndTextCommandScaleformString()
+        EndScaleformMovieMethod()
 
-    BeginScaleformMovieMethod(Renderer.instructional_scaleform, "SET_DATA_SLOT")
-    ScaleformMovieMethodAddParamInt(1)
-    ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, 202, true))
-    BeginTextCommandScaleformString("HUD_INPUT3")
-    EndTextCommandScaleformString()
-    EndScaleformMovieMethod()
+        BeginScaleformMovieMethod(Renderer.instructional_scaleform, "SET_DATA_SLOT")
+        ScaleformMovieMethodAddParamInt(1)
+        ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, 202, true))
+        BeginTextCommandScaleformString("HUD_INPUT3")
+        EndTextCommandScaleformString()
+        EndScaleformMovieMethod()
 
-    BeginScaleformMovieMethod(Renderer.instructional_scaleform, "DRAW_INSTRUCTIONAL_BUTTONS")
-    EndScaleformMovieMethod()
+        BeginScaleformMovieMethod(Renderer.instructional_scaleform, "DRAW_INSTRUCTIONAL_BUTTONS")
+        EndScaleformMovieMethod()
+        
+        Renderer.hints_built = true
+    end
 
     DrawScaleformMovieFullscreen(Renderer.instructional_scaleform, 255, 255, 255, 255, 0)
 end

@@ -11,13 +11,14 @@ dependency 'exm-interface'
 
 client_scripts {
     "client/lib/*.lua",
-    "client/core/*.lua",
-    "client/managers/*.lua",
-    "client/atms/*.lua"
+    "client/systems/**/*.lua",
+    "client/systems/*.lua"
 }
 
 server_scripts {
-    "server/**/*.lua"
+    "server/lib/*.lua",
+    "server/systems/**/*.lua",
+    "server/systems/*.lua"
 }
 
 shared_scripts {

@@ -47,6 +47,7 @@ local NativeUI = {
             81, 82, 83, 84, 85
         }
     },
+    
     GetCurrentMenu = function() return State.current_menu_id end,
     IsVisible = function(id) return State.visible and State.current_menu_id == id end,
     IsAnyMenuVisible = function() return State.visible end,
@@ -58,27 +59,13 @@ local NativeUI = {
 
     Header = HeaderComponent.Header,
     SpriteHeader = HeaderComponent.SpriteHeader,
-    Label = LabelComponent.Render,
     
-    Button = function(text, description, offset_text)
-        local clicked, is_hovering, hovered, unhovered = ButtonComponent.Button(text, description, offset_text)
-        return {clicked = clicked, is_hovering = is_hovering, hovered = hovered, unhovered = unhovered}
-    end,
+    Button = ButtonComponent.Button,
+    ListItem = ListComponent.List,
+    ListIndex = ListComponent.ListIndex,
 
-    Checkbox = function(text, checked, description)
-        local changed, is_hovering, hovered, unhovered, new_checked = CheckboxComponent.Checkbox(text, checked, description)
-        return {checked = new_checked, changed = changed, is_hovering = is_hovering, hovered = hovered, unhovered = unhovered}
-    end,
-
-    SubMenu = function(text, submenu_id, description)
-        local entered, is_hovering, hovered, unhovered = SubmenuComponent.SubMenu(text, submenu_id, description)
-        return {entered = entered, is_hovering = is_hovering, hovered = hovered, unhovered = unhovered}
-    end,
-
-    ListItem = function(text, items, current_index, description)
-        local changed, is_hovering, hovered, unhovered, new_index = ListComponent.ListItem(text, items, current_index, description)
-        return {index = new_index, changed = changed, is_hovering = is_hovering, hovered = hovered, unhovered = unhovered}
-    end,
+    Checkbox = CheckboxComponent.Checkbox,
+    SubMenu = SubmenuComponent.SubMenu,
 
     ---Registers a new menu with the framework.
     ---@param id any | function  Can be an ID or directly the callback function

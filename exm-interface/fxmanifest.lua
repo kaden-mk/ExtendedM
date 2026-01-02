@@ -6,8 +6,11 @@ description "Creates Native-Like UI used globally for EXM's resources."
 author "VOLTA"
 version "1.3.0"
 
-lua54 'yes'
 use_experimental_fxv2_oal 'yes'
+
+files {
+    'src/**/*.lua'
+}
 
 client_scripts {
     'src/api/types.lua',
@@ -18,7 +21,6 @@ client_scripts {
     'src/render/native-ui-renderer.lua',
     'src/core/core.lua',
     'src/components/native-ui/header.lua',
-    'src/components/native-ui/label.lua',
     'src/components/native-ui/button.lua',
     'src/components/native-ui/checkbox.lua',
     'src/components/native-ui/submenu.lua',

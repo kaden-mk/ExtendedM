@@ -1,6 +1,4 @@
----@type EXMInterface
-local Interface = exports["exm-interface"]:EXMInterface()
-local Native = Interface.Native
+local Native = EXMInterface.Native
 
 local Config = EXMDebug.Config
 local Utility = EXMDebug.Utility
@@ -12,6 +10,7 @@ Utility.CreateMenu(Config.MENU_IDS.MAIN_DEBUG, function()
 
     sub("Player", Config.MENU_IDS.COMPONENTS.PLAYER.MAIN)
     sub("Vehicles", Config.MENU_IDS.COMPONENTS.VEHICLES.MAIN)
+    sub("World", Config.MENU_IDS.COMPONENTS.WORLD.MAIN)
 end)
 
 RegisterCommand("open_debug_menu", function()
