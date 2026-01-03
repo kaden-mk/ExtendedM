@@ -15,10 +15,17 @@ client_scripts {
     '@exm-interface/main.lua',
     
     "client/lib/*.lua",
+    
     "client/components/player/menus/*.lua",
     "client/components/player/*.lua",
+
     "client/components/vehicles/*.lua",
+
     "client/components/world/*.lua",
+
+    "client/components/extendedm/menus/*.lua",
+    "client/components/extendedm/*.lua",
+
     "client/main.lua"
 }
 

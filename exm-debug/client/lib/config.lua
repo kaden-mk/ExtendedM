@@ -23,6 +23,12 @@ EXMDebug.Config = {
             
             WORLD = {
                 MAIN = "EXM_DEBUG_WORLD_MENU"
+            },
+
+            EXTENDEDM = {
+                MAIN = "EXM_DEBUG_EXTENDEDM_FEATURES_MENU",
+                
+                VEHICLE_CUSTOMIZATION = "EXM_DEBUG_EXTENDEDM_VEHICLE_CUSTOMIZATION_MENU"
             }
         }
     },

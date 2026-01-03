@@ -1,9 +1,9 @@
 ExtendedM.Enum = {
-    BLIP_ICONS = {
+    BLIP_ICON = {
         GUN_SHOP = 110
     },
 
-    KEYBINDS = {
+    KEYBIND = {
         E = 51
     },
 
@@ -19,7 +19,39 @@ ExtendedM.Enum = {
         ATTACK = 24
     },
 
-    WEAPON_LABELS = {
+    ITEM_TYPE = {
+        VALUABLE = 1,
+        VALUE_CONTAINER = 2,
+        CONTRABAND = 3,
+        UTILITY = 4,
+        SYSTEM = 5
+    },
+
+    ITEM_RARITY = {
+        TRASH = 1,
+        COMMON = 2,
+        UNCOMMON = 3,
+        RARE = 4,
+        VERY_RARE = 5
+    },
+
+    ITEM_ORIGIN = {
+        DUMPSTER = 1,
+        CRIMINAL = 2,
+        DEALER = 3,
+        COMMERICAL = 4,
+        UNKNOWN = 5
+    },
+
+    INVENTORY_CONTAINER_TYPE = {
+        PLAYER = 1,
+        WAREHOUSE = 2,
+        DEALER = 3,
+        WORLD = 4,
+        UNKNOWN = 5
+    },
+
+    WEAPON_LABEL = {
         WEAPON_ACIDPACKAGE = {
             name = "WT_ACIDPACKAGE",
             desc = "WTD_ACIDPACKAGE"

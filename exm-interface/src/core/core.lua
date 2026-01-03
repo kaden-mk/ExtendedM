@@ -238,6 +238,7 @@ function Core.ProcessNavigation(max_items)
             Core.TriggerExit()
             State.visible = false
         end
+        
         PlaySoundFrontend(-1, "BACK", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
     end
 end
@@ -245,9 +246,11 @@ end
 CreateThread(function()
     while true do
         local wait = 0
+        local current_id = State.current_menu_id
         
-        if State.visible and State.menus[State.current_menu_id] then
-            local disabled = State.disabled_controls[State.current_menu_id]
+        if State.visible and State.menus[current_id] then
+            local disabled = State.disabled_controls[current_id]
+            
             Input.DisableControls(disabled)
             Input.UpdateState(disabled)
             
@@ -255,101 +258,91 @@ CreateThread(function()
             State.current_y = Theme.sizes.y
             State.item_count = 0
             State.current_description = nil
-            local id = State.current_menu_id
             
-            Core.UpdatePagination(id, State.selections[id] or 1, State.total_items[id] or 0)
+            local selections = State.selections
+            local total_items = State.total_items
+            
+            local current_selection = selections[current_id] or 1
+            local current_total = total_items[current_id] or 0
+            
+            Core.UpdatePagination(current_id, current_selection, current_total)
             
             local mx = Input.state.mouse_x
             local my = Input.state.mouse_y
             
-            local cursor_visible = true
-            State.mouse_visible = cursor_visible
-
-            if cursor_visible then
-                State.mouse_moved = (math.abs(mx - last_mouse_x) > 0.005) or (math.abs(my - last_mouse_y) > 0.005)
-                last_mouse_x = mx
-                last_mouse_y = my
-                
-                if State.mouse_moved then
-                    State.ignore_mouse = false
-                end
-            else
-                State.mouse_moved = false
+            State.mouse_visible = true
+            State.mouse_moved = (math.abs(mx - last_mouse_x) > 0.005) or (math.abs(my - last_mouse_y) > 0.005)
+            last_mouse_x = mx
+            last_mouse_y = my
+            
+            if State.mouse_moved then
+                State.ignore_mouse = false
             end
 
-            local current_pag = State.pagination[id]
+            local current_pag = State.pagination[current_id]
             State.render_min = current_pag.min
             State.render_max = current_pag.max
 
-            if not State.buffered_items[id] then
-                local menu_function = State.menus[id]
+            if not State.buffered_items[current_id] then
+                local menu_function = State.menus[current_id]
 
                 State.is_building = true
                 State.build_item_count = 0
-                State.buffered_items[id] = {} 
+                State.buffered_items[current_id] = {}
+                State.header_items[current_id] = {}
+                State.scrollable_items[current_id] = {}
                 
                 if menu_function then
                     menu_function()
                 end
                 
                 State.is_building = false
-                State.total_items[id] = State.build_item_count
+                State.total_items[current_id] = State.build_item_count
 
-                local groups = {}
-                local current_group = nil
-
-                for _, item in ipairs(State.buffered_items[id]) do
-                    local is_indexed = (item.index ~= nil)
-                    local group_type = is_indexed and "indexed" or "static"
-                    
-                    if not current_group or current_group.type ~= group_type then
-                        current_group = { type = group_type, items = {}, start_index = item.index or 0 }
-                        table.insert(groups, current_group)
+                for _, item in ipairs(State.buffered_items[current_id]) do
+                    if item.type == "Header" or item.type == "SpriteHeader" then
+                        table.insert(State.header_items[current_id], item)
+                    else
+                        table.insert(State.scrollable_items[current_id], item)
                     end
-                    
-                    table.insert(current_group.items, item)
                 end
-                
-                State.render_groups[id] = groups
             end
 
-            if State.render_groups[id] then
-                for _, group in ipairs(State.render_groups[id]) do
-                    if group.type == "static" then
-                        for _, item in ipairs(group.items) do
-                            item.render(item)
-                        end
-                    else
-                        local first_index = group.items[1].index
-                        local last_index = group.items[#group.items].index
+            local headers = State.header_items[current_id]
+            if headers then
+                for i = 1, #headers do
+                    local item = headers[i]
+                    item.render(item)
+                end
+            end
 
-                        local global_start = math.max(first_index, State.render_min)
-                        local global_end = math.min(last_index, State.render_max)
+            local scroll_items = State.scrollable_items[current_id]
+            if scroll_items then
+                local min_idx = State.render_min
+                local max_idx = State.render_max
+                
+                local start_pos = math.max(1, min_idx)
+                local end_pos = math.min(#scroll_items, max_idx)
 
-                        if global_start <= global_end then
-                            for i = global_start, global_end do
-                                local local_idx = i - first_index + 1
-                                local item = group.items[local_idx]
-                                if item then
-                                    item.render(item)
-                                end
-                            end
-                        end
+                for i = start_pos, end_pos do
+                    local item = scroll_items[i]
+                    if item then
+                        item.render(item)
                     end
                 end
             end
                         
             if State.pending_subtitle then
-                Renderer.DrawSubtitleBar(State.pending_subtitle.text, State.selections[id] or 1, State.total_items[id], State.pending_subtitle.x, State.pending_subtitle.y)
+                Renderer.DrawSubtitleBar(State.pending_subtitle.text, current_selection, current_total, State.pending_subtitle.x, State.pending_subtitle.y)
             end
             
-            if State.current_menu_id == id then
-                if State.total_items[id] > MAX_VISIBLE_ITEMS then
+            if State.current_menu_id == current_id then
+                if current_total > MAX_VISIBLE_ITEMS then
                     local scroll_height = Renderer.DrawScrollIndicator(State.current_x, State.current_y)
                     State.current_y = State.current_y + scroll_height
                 end
                 
-                Core.ProcessNavigation(State.total_items[id])
+                Core.ProcessNavigation(current_total)
             else
                 State.last_selections[State.current_menu_id] = 0
             end

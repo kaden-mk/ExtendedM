@@ -69,12 +69,12 @@ if not IS_SERVER then
         
         for hash, price in pairs(display_weapons) do
             if GetWeapontypeGroup(hash) == selected_category then
-                local label = ExtendedM.Enum.WEAPON_LABELS[hash]
+                local label = ExtendedM.Enum.WEAPON_LABEL[hash]
                 local color = cash >= price and "~g~" or "~r~"
 
-                if Interface.Button(GetLabelText(label.name), GetLabelText(label.desc), color .. "$" .. ExtendedM.Utility.Comma(price)).hovered then
+                --[[if Interface.Button(GetLabelText(label.name), GetLabelText(label.desc), color .. "$" .. ExtendedM.Utility.Comma(price)).hovered then
                     DisplayWeaponModel(hash)
-                end
+                end--]]
             end
         end
     end)
@@ -112,10 +112,10 @@ if not IS_SERVER then
             local group = GetWeapontypeGroup(hash)
             if not shown[group] then
                 shown[group] = true
-                if Interface.SubMenu(ExtendedM.Utility.GetWeaponGroupNameFromHash(group), category_menu_id).entered then
+                --[[if Interface.SubMenu(ExtendedM.Utility.GetWeaponGroupNameFromHash(group), category_menu_id).entered then
                     selected_category = group
                     Interface.ResetSelection(category_menu_id)
-                end
+                end--]]
             end
         end
     end)

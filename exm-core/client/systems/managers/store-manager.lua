@@ -40,7 +40,7 @@ CreateThread(function()
                     AddTextComponentSubstringPlayerName("Press ~INPUT_CONTEXT~ to " .. (interaction_data.text or "access this interaction."))
                     EndTextCommandDisplayHelp(0, false, true, -1)
                 
-                    if IsControlJustReleased(0, ExtendedM.Enum.KEYBINDS.E) then
+                    if IsControlJustReleased(0, ExtendedM.Enum.KEYBIND.E) then
                         interaction_data.callback()
                     end
                 end

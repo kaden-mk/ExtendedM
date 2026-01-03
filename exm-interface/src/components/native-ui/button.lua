@@ -68,6 +68,13 @@ function ButtonComponent.Render(item)
     return false, is_hovering, hovered, unhovered
 end
 
+local ButtonMethods = {}
+
+function ButtonMethods:On(event, cb)
+    self.events[event] = cb
+    return self
+end
+
 ---Adds a button to the current menu.
 ---@param text string
 ---@param description string | nil
@@ -89,13 +96,7 @@ function ButtonComponent.Button(text, description, offset_text)
         events = {}
     }
 
-    ---Registers an event callback.
-    ---@param event string "click", "hover", "unhover"
-    ---@param cb function
-    function item:On(event, cb)
-        self.events[event] = cb
-        return self
-    end
+    setmetatable(item, { __index = ButtonMethods })
 
     table.insert(State.buffered_items[id], item)
     return item

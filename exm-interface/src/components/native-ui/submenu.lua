@@ -73,6 +73,13 @@ function SubmenuComponent.Render(item)
     return false, is_hovering, hovered, unhovered
 end
 
+local SubMenuMethods = {}
+
+function SubMenuMethods:On(event, cb)
+    self.events[event] = cb
+    return self
+end
+
 ---Adds a submenu item to the buffer.
 ---@param text string
 ---@param submenu_id any
@@ -93,13 +100,7 @@ function SubmenuComponent.SubMenu(text, submenu_id, description)
         events = {}
     }
 
-    ---Registers an event callback.
-    ---@param event string "click", "hover", "unhover"
-    ---@param cb function
-    function item:On(event, cb)
-        self.events[event] = cb
-        return self
-    end
+    setmetatable(item, { __index = SubMenuMethods })
 
     table.insert(State.buffered_items[id], item)
     return item

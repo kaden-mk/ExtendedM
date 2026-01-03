@@ -24,6 +24,7 @@ server_scripts {
 shared_scripts {
     "shared/module.lua",
     "shared/lib/*.lua",
+    "shared/lib/items/*.lua",
     "shared/config.lua",
     "shared/managers/store-manager.lua"
 }

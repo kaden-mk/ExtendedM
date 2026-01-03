@@ -71,7 +71,7 @@ ExtendedM.Config = {
     Blips = {
         {
             coords = vector3(243.18, -45.01, 69.9),
-            icon = ExtendedM.Enum.BLIP_ICONS.GUN_SHOP,
+            icon = ExtendedM.Enum.BLIP_ICON.GUN_SHOP,
             name = "Ammu-Nation"
         }
     },

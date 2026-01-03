@@ -19,6 +19,13 @@ local function GetItemState(index)
     return is_hovering, hovered, unhovered
 end
 
+local ListMethods = {}
+
+function ListMethods:On(event, cb)
+    self.events[event] = cb
+    return self
+end
+
 ---Adds a List item to the current menu buffer.
 ---@param text string
 ---@param items table Array of strings
@@ -41,13 +48,7 @@ function ListComponent.List(text, items, index, description)
         events = {}
     }
 
-    ---Registers an event callback.
-    ---@param event string "change", "hover", "unhover"
-    ---@param cb function
-    function item:On(event, cb)
-        self.events[event] = cb
-        return self
-    end
+    setmetatable(item, { __index = ListMethods })
 
     table.insert(State.buffered_items[id], item)
     return item
@@ -79,13 +80,7 @@ function ListComponent.ListIndex(text, min, max, step, index, description)
         events = {}
     }
 
-    ---Registers an event callback.
-    ---@param event string "change", "hover", "unhover"
-    ---@param cb function
-    function item:On(event, cb)
-        self.events[event] = cb
-        return self
-    end
+    setmetatable(item, { __index = ListMethods })
 
     table.insert(State.buffered_items[id], item)
     return item
