@@ -1,8 +1,17 @@
 ---@alias ITEM_ORIGIN integer
 ---@alias ITEM_TYPE integer
+---@alias CONTAINER_TYPE integer
+
+---@class Container
+---@field container_id integer
+---@field container_type CONTAINER_TYPE
+---@field owner_id integer
+---@field max_weight number
+---@field items table<integer>
 
 ---@class ItemInstance
 ---@field instance_id integer
+---@field container_id integer?
 ---@field prototype_id string
 ---@field quantity integer
 ---@field created_at integer

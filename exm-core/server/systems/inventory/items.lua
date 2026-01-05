@@ -45,7 +45,7 @@ function Items.Create(prototype_id, creation_context)
     local instance = {
         prototype_id = prototype_data.id,
         quantity = creation_context.quantity or 1,
-        created_at = GetGameTimer(),
+        created_at = os.time(),
         origin = creation_context.origin or ExtendedM.Enum.ITEM_ORIGIN.UNKNOWN,
         metadata = {},
     }
@@ -98,9 +98,13 @@ function Items.RegisterInstance(instance)
     if not ExtendedM.Items.Prototypes[prototype_id] then return end
 
     local prototype_data = ExtendedM.Items.Prototypes[prototype_id] ---@type ItemPrototype
+    if not prototype_data then return end
+
+    local schema = ExtendedM.Items.TypeMetadataSchemas[prototype_data.item_type]
+    if not schema then return end
 
     local validated = true
-    for key in pairs(ExtendedM.Items.TypeMetadataSchemas[prototype_data.item_type]) do
+    for key in pairs(schema) do
         if not instance.metadata[key] then
             validated = false
             break
@@ -114,7 +118,7 @@ function Items.RegisterInstance(instance)
     local new_instance = table.clone(instance)
     new_instance.instance_id = item_count
 
-    ItemsStorage[instance.instance_id] = new_instance
+    ItemsStorage[new_instance.instance_id] = new_instance
     return new_instance
 end
 

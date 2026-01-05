@@ -69,7 +69,7 @@ if not IS_SERVER then
         
         for hash, price in pairs(display_weapons) do
             if GetWeapontypeGroup(hash) == selected_category then
-                local label = ExtendedM.Enum.WEAPON_LABEL[hash]
+                local label = ExtendedM.Config.WeaponLabels[hash]
                 local color = cash >= price and "~g~" or "~r~"
 
                 --[[if Interface.Button(GetLabelText(label.name), GetLabelText(label.desc), color .. "$" .. ExtendedM.Utility.Comma(price)).hovered then
@@ -153,15 +153,15 @@ StoreManager.CreateStoreType("WEAPONS", {
                         
                         SetMouseCursorSprite(mouse_cursor_sprite)
                         
-                        DisableControlAction(0, ExtendedM.Enum.CONTROLS.LOOK_LR, true)
-                        DisableControlAction(0, ExtendedM.Enum.CONTROLS.LOOK_UD, true)
-                        DisableControlAction(0, ExtendedM.Enum.CONTROLS.LOOK_BEHIND, true)
-                        DisableControlAction(0, ExtendedM.Enum.CONTROLS.LOOK_LEFT, true)
-                        DisableControlAction(0, ExtendedM.Enum.CONTROLS.LOOK_RIGHT, true)
-                        DisableControlAction(0, ExtendedM.Enum.CONTROLS.LOOK_DOWN, true)
+                        DisableControlAction(0, ExtendedM.Enum.CONTROL.LOOK_LR, true)
+                        DisableControlAction(0, ExtendedM.Enum.CONTROL.LOOK_UD, true)
+                        DisableControlAction(0, ExtendedM.Enum.CONTROL.LOOK_BEHIND, true)
+                        DisableControlAction(0, ExtendedM.Enum.CONTROL.LOOK_LEFT, true)
+                        DisableControlAction(0, ExtendedM.Enum.CONTROL.LOOK_RIGHT, true)
+                        DisableControlAction(0, ExtendedM.Enum.CONTROL.LOOK_DOWN, true)
                         
                         if current_weapon_object and weapon_base_rotation then
-                            if IsDisabledControlPressed(0, ExtendedM.Enum.CONTROLS.ATTACK) then
+                            if IsDisabledControlPressed(0, ExtendedM.Enum.CONTROL.ATTACK) then
                                 if not is_dragging then
                                     is_dragging = true
                                     ExtendedM.Utility.GetMouseDelta()

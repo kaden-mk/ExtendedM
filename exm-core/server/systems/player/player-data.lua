@@ -2,6 +2,9 @@ local Player = {}
 
 local temp_data = {}
 
+ExtendedM.Hook.Register("player_registered")
+ExtendedM.Hook.Register("player_leave")
+
 AddEventHandler('playerConnecting', function(_, set_kick_reason, deferrals)
     deferrals.defer()
     deferrals.update("Loading player's JSON data...")
@@ -30,6 +33,8 @@ AddEventHandler('playerJoining', function(old_source)
     
     ExtendedM.DataManager.Setup(source, data)
     temp_data[old_source] = nil
+
+    ExtendedM.Hook.Fire("player_registered", source)
 end)
 
 AddEventHandler('onResourceStart', function(resourceName)
@@ -45,6 +50,7 @@ AddEventHandler('onResourceStart', function(resourceName)
             
             if player_data then
                 ExtendedM.DataManager.Setup(playerId, player_data)
+                ExtendedM.Hook.Fire("player_registered", playerId)
             else
                 print("[DATA] Could not load data for " .. playerId .. " on resource start")
             end
@@ -56,6 +62,8 @@ AddEventHandler('playerDropped', function()
     local source = source
     ExtendedM.DataManager.Save(source)
     ExtendedM.DataManager.Remove(source)
+
+    ExtendedM.Hook.Fire("player_leave", source)
 end)
 
 ExtendedM.Player = Player

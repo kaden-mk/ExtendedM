@@ -2,10 +2,10 @@ local TableLib = {}
 
 ---Prints out every key and value next to eachother in a table
 ---@param t table The table to print from
-function TableLib.Print(t)
+function TableLib.DeepPrint(t)
     for key, value in pairs(t) do
         if type(value) == "table" then
-            TableLib.Print(value)
+            TableLib.DeepPrint(value)
         else
             print(key, value)
         end

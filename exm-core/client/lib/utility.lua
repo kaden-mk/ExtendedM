@@ -133,8 +133,8 @@ local mouse_initialized = false
 ---Gets the current mouse position as normalized coordinates (0-1)
 ---@return table {x: number, y: number}
 function ExtendedM.Utility.GetMousePosition()
-    local x = GetDisabledControlNormal(0, ExtendedM.Enum.CONTROLS.MOUSE_X)
-    local y = GetDisabledControlNormal(0, ExtendedM.Enum.CONTROLS.MOUSE_Y)
+    local x = GetDisabledControlNormal(0, ExtendedM.Enum.CONTROL.MOUSE_X)
+    local y = GetDisabledControlNormal(0, ExtendedM.Enum.CONTROL.MOUSE_Y)
     
     return {x = x, y = y}
 end
@@ -284,7 +284,7 @@ function ExtendedM.Utility.TeleportToWaypoint()
             RequestCollisionAtCoord(coord.x, coord.y, i + 0.0)
             Wait(0)
             
-            path, z = GetGroundZFor_3dCoord(coord.x, coord.y, i + 0.0, 0)
+            path, z = GetGroundZFor_3dCoord(coord.x, coord.y, i + 0.0, false)
             if path then
                 SetEntityCoordsNoOffset(entity, coord.x, coord.y, z + 2.0, false, false, false)
                 break
