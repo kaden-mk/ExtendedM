@@ -1,7 +1,3 @@
-local Inventory = {}
-
-ExtendedM.DataSyncer:On('inventory', function(inv)
-    print("[INVENTORY] Client received inventory update")
+ExtendedM.DataSyncer:On('inventory', function()
+    EXMInterface.Native.Refresh("ExtendedM:Menus:Inventory")
 end)
-
-ExtendedM.Inventory = Inventory

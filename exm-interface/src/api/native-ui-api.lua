@@ -56,6 +56,7 @@ local NativeUI = {
     WentBack = Core.WentBack,
     ResetSelection = Core.ResetSelection,
     Exiting = Core.IsExiting,
+    Refresh = Core.Refresh,
 
     Header = HeaderComponent.Header,
     SpriteHeader = HeaderComponent.SpriteHeader,

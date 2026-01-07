@@ -10,6 +10,8 @@ use_experimental_fxv2_oal 'yes'
 dependency 'exm-interface'
 
 client_scripts {
+    '@exm-interface/main.lua',
+
     "client/lib/*.lua",
     "client/systems/**/*.lua",
     "client/systems/*.lua"
@@ -17,8 +19,9 @@ client_scripts {
 
 server_scripts {
     "server/lib/*.lua",
-    "server/systems/**/*.lua",
-    "server/systems/*.lua"
+    "server/systems/inventory/*.lua",
+    "server/systems/world/*.lua",
+    "server/systems/player/*.lua",
 }
 
 shared_scripts {

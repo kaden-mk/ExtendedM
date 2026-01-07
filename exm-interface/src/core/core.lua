@@ -147,6 +147,12 @@ function Core.UpdatePagination(id, selection, total)
     end
 end
 
+---Refreshes a menu by clearing its buffered items.
+---@param id any
+function Core.Refresh(id)
+    State.buffered_items[id] = nil
+end
+
 ---Checks if the menu is currently exiting.
 ---@return boolean
 function Core.IsExiting()

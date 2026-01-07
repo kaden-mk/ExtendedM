@@ -66,4 +66,26 @@ AddEventHandler('playerDropped', function()
     ExtendedM.Hook.Fire("player_leave", source)
 end)
 
+AddEventHandler('onResourceStop', function(resourceName)
+    if resourceName ~= GetCurrentResourceName() then return end
+
+    print("[DATA] Resource stopping - saving all player data...")
+    
+    local playerList = GetPlayers()
+    local saved_count = 0
+
+    for _, playerIdStr in ipairs(playerList) do
+        local playerId = tonumber(playerIdStr)
+        
+        if playerId then
+            local success = ExtendedM.DataManager.Save(playerId)
+            if success then
+                saved_count = saved_count + 1
+            end
+        end
+    end
+
+    print(string.format("[DATA] Saved data for %d/%d players", saved_count, #playerList))
+end)
+
 ExtendedM.Player = Player

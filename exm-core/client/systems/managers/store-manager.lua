@@ -1,8 +1,7 @@
 local StoreManager = ExtendedM.StoreManager or {}
 local InteractionAreas = {}
 
----@type NativeUI
-local Interface = exports["exm-interface"]:EXMInterface().Native
+local Interface = EXMInterface.Native
 
 ---@param coords vector3
 ---@param range number

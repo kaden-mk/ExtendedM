@@ -76,6 +76,14 @@ local function ReconcileData(saved, template)
         end
     end
 
+    if saved then
+        for key, value in pairs(saved) do
+            if reconciled[key] == nil then
+                reconciled[key] = value
+            end
+        end
+    end
+
     return reconciled
 end
 
@@ -96,7 +104,7 @@ function DataManager.Load(source)
         save_data = ReconcileData(decoded, registered_keys)
         print("[DATA] Loaded & reconciled data for " .. identifier)
     else
-        save_data = registered_keys
+        save_data = ReconcileData(nil, registered_keys)
         print("[DATA] Created new data for " .. identifier)
     end
 
@@ -145,6 +153,16 @@ function DataManager.SyncData(source)
     if not player_data then return end
 
     TriggerClientEvent("ExtendedM:DataSyncer:SyncData", source, player_data.save_data)
+end
+
+---Syncs a client's data key with the server.
+---@param source number Player's server ID
+---@param key string The key to sync
+function DataManager.SyncKey(source, key)
+    local player_data = DataManager.Get(source)
+    if not player_data then return end
+
+    TriggerClientEvent("ExtendedM:DataSyncer:UpdateKey", source, key, player_data.save_data[key])
 end
 
 RegisterNetEvent("ExtendedM:DataManager:SyncData")

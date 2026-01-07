@@ -36,13 +36,14 @@
 ---@field GoBack fun(): boolean
 ---@field WentBack fun(id: any): boolean
 ---@field ResetSelection fun(id: any)
+---@field Refresh fun(id: any)
 ---@field Exiting fun(): boolean
 ---@field Header fun(title: string, subtitle: string, r?: number, g?: number, b?: number, a?: number)
 ---@field SpriteHeader fun(dict: string, texture: string, subtitle: string)
 ---@field Button fun(text: string, description?: string, offset_text?: string): ButtonItem
----@field Checkbox fun(text: string, checked: boolean, description?: string, callback?: function): CheckboxItem
----@field ListItem fun(text: string, items: table, current_index: number, description?: string, callback?: function): ListItemItem
----@field ListIndex fun(text: string, min: number, max: number, step: number, index: number, description?: string, callback?: function): ListIndexItem
+---@field Checkbox fun(text: string, checked: boolean, description?: string): CheckboxItem
+---@field ListItem fun(text: string, items: table, current_index: number, description?: string): ListItemItem
+---@field ListIndex fun(text: string, min: number, max: number, step: number, index: number, description?: string): ListIndexItem
 ---@field SubMenu fun(text: string, submenu_id: any, description?: string): SubMenuItem
 
 ---@class EXMInterface

@@ -4,6 +4,7 @@ local DataSyncer = {}
 ---@field cash integer
 ---@field bank integer
 ---@field weapons table
+---@field inventory table
 
 ---@type PlayerData
 ---@diagnostic disable-next-line: missing-fields
@@ -36,11 +37,20 @@ function DataSyncer:On(key, callback)
     table.insert(listeners[key], callback)
 end
 
-
 RegisterNetEvent("ExtendedM:DataSyncer:SyncData")
 AddEventHandler("ExtendedM:DataSyncer:SyncData", function(synced_data)
+    local old_data = DataSyncer.Data
+
     DataSyncer.Data = synced_data
     yield = false
+
+    for key, new_value in pairs(DataSyncer.Data) do
+        if old_data[key] ~= new_value and listeners[key] then
+            for _, cb in ipairs(listeners[key]) do
+                cb(new_value)
+            end
+        end
+    end
 end)
 
 RegisterNetEvent("ExtendedM:DataSyncer:UpdateKey")
