@@ -53,7 +53,7 @@ function CheckboxComponent.Render(item)
         sprite = is_selected and "shop_tick_icon" or "shop_box_tick"
     end
     
-    local size = 0.04
+    local size = 0.05
     local aspect = GetAspectRatio(false)
     local sw, sh = size / aspect, size
     local icon_x = x + w - sw - Theme.sizes.padding

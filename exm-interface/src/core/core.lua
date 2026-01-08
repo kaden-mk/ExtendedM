@@ -2,7 +2,7 @@
 
 Core = {}
 
-local MAX_VISIBLE_ITEMS = 7
+local DEFAULT_MAX_ITEMS = 7
 local menu_counter = 0
 local key_held = nil
 local key_hold_time = 0
@@ -60,6 +60,20 @@ function Core.SetDisabledControls(id, controls)
     State.disabled_controls[id] = controls
 end
 
+---Sets the maximum visible items for a specific menu.
+---@param id any
+---@param count integer
+function Core.SetMaxVisibleItems(id, count)
+    State.max_visible_items[id] = count
+end
+
+---Gets the maximum visible items for a menu (defaults to 7).
+---@param id any
+---@return integer
+function Core.GetMaxVisibleItems(id)
+    return State.max_visible_items[id] or DEFAULT_MAX_ITEMS
+end
+
 ---Navigates to a submenu.
 ---@param submenu_id any
 function Core.GoToSubmenu(submenu_id)
@@ -101,8 +115,9 @@ end
 ---Resets the selection for a menu.
 ---@param id any
 function Core.ResetSelection(id)
+    local max_visible = Core.GetMaxVisibleItems(id)
     State.selections[id] = 1
-    State.pagination[id] = {min = 1, max = MAX_VISIBLE_ITEMS}
+    State.pagination[id] = {min = 1, max = max_visible}
 end
 
 ---Returns the pagination bounds for a menu.
@@ -110,7 +125,8 @@ end
 ---@return table {min: number, max: number}
 function Core.GetPagination(id)
     if not State.pagination[id] then
-        State.pagination[id] = {min = 1, max = MAX_VISIBLE_ITEMS}
+        local max_visible = Core.GetMaxVisibleItems(id)
+        State.pagination[id] = {min = 1, max = max_visible}
     end
 
     return State.pagination[id]
@@ -131,19 +147,20 @@ end
 ---@param total number
 function Core.UpdatePagination(id, selection, total)
     local pag = Core.GetPagination(id)
+    local max_visible = Core.GetMaxVisibleItems(id)
     
-    if total <= MAX_VISIBLE_ITEMS then
+    if total <= max_visible then
         pag.min = 1
-        pag.max = MAX_VISIBLE_ITEMS
+        pag.max = max_visible
         return
     end
     
     if selection < pag.min then
         pag.min = selection
-        pag.max = selection + MAX_VISIBLE_ITEMS - 1
+        pag.max = selection + max_visible - 1
     elseif selection > pag.max then
         pag.max = selection
-        pag.min = selection - MAX_VISIBLE_ITEMS + 1
+        pag.min = selection - max_visible + 1
     end
 end
 
@@ -342,8 +359,9 @@ CreateThread(function()
                 Renderer.DrawSubtitleBar(State.pending_subtitle.text, current_selection, current_total, State.pending_subtitle.x, State.pending_subtitle.y)
             end
             
+            local max_visible = Core.GetMaxVisibleItems(current_id)
             if State.current_menu_id == current_id then
-                if current_total > MAX_VISIBLE_ITEMS then
+                if current_total > max_visible then
                     local scroll_height = Renderer.DrawScrollIndicator(State.current_x, State.current_y)
                     State.current_y = State.current_y + scroll_height
                 end

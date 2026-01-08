@@ -20,6 +20,7 @@ State = {
     buffered_items = {},
     header_items = {},
     scrollable_items = {},
+    max_visible_items = {},
     is_building = false,
     build_item_count = 0,
     render_groups = {}, 

@@ -23,9 +23,6 @@ function Inventory.SaveInventory(source)
     local inventory = Containers.GetContainerFromId(Inventory.PlayerContainers[source])
     if not inventory then return end
 
-    print("saving inventory")
-    ExtendedM.Table.DeepPrint(inventory)
-
     local saved_inventory = {}
 
     for _, instance_id in ipairs(inventory.items) do
@@ -69,8 +66,6 @@ function Inventory.Run()
     ExtendedM.Hook.Connect("player_registered", function(source)
         local inventory_container = Containers.Create(ExtendedM.Enum.CONTAINER_TYPE.PLAYER, source, 20)
         local inventory = ExtendedM.DataManager.GetKey(source, "inventory")
-
-        ExtendedM.Table.DeepPrint(inventory)
 
         Inventory.LoadItemsFromInventory(inventory_container, inventory)
 

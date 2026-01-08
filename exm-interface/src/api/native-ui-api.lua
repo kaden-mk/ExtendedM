@@ -23,6 +23,7 @@ local NativeUI = {
     SetVisible = Core.SetVisible,
     SetCurrentMenu = Core.SetCurrentMenu,
     SetDisabledControls = Core.SetDisabledControls,
+    SetMaxVisibleMenuItemCount = Core.SetMaxVisibleItems,
     ControlTemplates = {
         Default = {
             1, 2, 3, 4, 5, 6, 24, 25, 37, 44, 45, 47, 58, 59, 71, 72, 91, 92, 99, 100, 

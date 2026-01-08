@@ -49,8 +49,24 @@ function ButtonComponent.Render(item)
     Renderer.DrawRect(x, y, w, h, color[1], color[2], color[3], color[4])
     Renderer.DrawText(item.text, x + Theme.sizes.padding, y + Theme.sizes.text_offset, 0.35, tc[1], tc[2], tc[3], tc[4])
     
+    local offset_right = Theme.sizes.padding
+
+    if item.sprite then
+        local size = 0.05
+        local aspect = GetAspectRatio(false)
+        local sw, sh = size / aspect, size
+        
+        local sprite_name = item.sprite.name
+        if is_selected and item.sprite.hover_name then
+            sprite_name = item.sprite.hover_name
+        end
+        
+        Renderer.DrawSprite(item.sprite.dict, sprite_name, x + w - sw - offset_right, y + (h - sh) / 2, sw, sh, 0.0, 255, 255, 255, 255)
+        offset_right = offset_right + sw + Theme.sizes.padding
+    end
+
     if item.offset_text then
-        Renderer.DrawText(item.offset_text, x + w - Theme.sizes.padding, y + Theme.sizes.text_offset, 0.35, tc[1], tc[2], tc[3], tc[4], 'right')
+        Renderer.DrawText(item.offset_text, x + w - offset_right, y + Theme.sizes.text_offset, 0.35, tc[1], tc[2], tc[3], tc[4], 'right')
     end
     
     if is_selected and (Input.state.select_just or (mouse_over and Input.state.mouse_select_just)) then
@@ -79,8 +95,9 @@ end
 ---@param text string
 ---@param description string | nil
 ---@param offset_text string | nil
+---@param sprite table | nil
 ---@return table item The created item
-function ButtonComponent.Button(text, description, offset_text)
+function ButtonComponent.Button(text, description, offset_text, sprite)
     local id = State.current_menu_id
     if not State.buffered_items[id] then State.buffered_items[id] = {} end
     
@@ -92,6 +109,7 @@ function ButtonComponent.Button(text, description, offset_text)
         text = text,
         description = description,
         offset_text = offset_text,
+        sprite = sprite,
         render = ButtonComponent.Render,
         events = {}
     }

@@ -28,6 +28,7 @@
 ---@field SetVisible fun(id: any, visible: boolean)
 ---@field GetCurrentMenu fun(): any
 ---@field SetCurrentMenu fun(id: any)
+---@field SetMaxVisibleMenuItemCount fun(id: any, count: integer)
 ---@field SetDisabledControls fun(id: any, controls: table)
 ---@field ControlTemplates ControlTemplates
 ---@field IsVisible fun(id: any): boolean
@@ -40,7 +41,7 @@
 ---@field Exiting fun(): boolean
 ---@field Header fun(title: string, subtitle: string, r?: number, g?: number, b?: number, a?: number)
 ---@field SpriteHeader fun(dict: string, texture: string, subtitle: string)
----@field Button fun(text: string, description?: string, offset_text?: string): ButtonItem
+---@field Button fun(text: string, description?: string, offset_text?: string, sprite?: table<string, any>): ButtonItem
 ---@field Checkbox fun(text: string, checked: boolean, description?: string): CheckboxItem
 ---@field ListItem fun(text: string, items: table, current_index: number, description?: string): ListItemItem
 ---@field ListIndex fun(text: string, min: number, max: number, step: number, index: number, description?: string): ListIndexItem
