@@ -26,8 +26,10 @@ server_scripts {
 
 shared_scripts {
     "shared/module.lua",
-    "shared/lib/*.lua",
+    "shared/lib/core/*.lua",
+    "shared/lib/data/*.lua",
     "shared/lib/items/*.lua",
+    "shared/lib/vehicles/*.lua",
     "shared/config.lua",
     "shared/managers/store-manager.lua"
 }

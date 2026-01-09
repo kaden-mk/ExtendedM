@@ -82,6 +82,24 @@ ExtendedM.Config = {
             506770882,
         }
     },
+    VehicleModPrices = {
+        Brakes = {
+            SPECIAL = {1000, 20000, 27000, 35000, 60000},
+            SPORT = {650, 13000, 17550, 22750, 60000},
+            SUV = {500, 10000, 13500, 17500, 60000},
+            STANDARD = {200, 4000, 5400, 7000, 60000},
+            BIKE = {200, 4000, 5400, 7000, 60000},
+        }
+    },
+    Features = {
+        FEATURE_DLC_1_2022 = 1,
+        FEATURE_DLC_2_2022 = 0,
+        FEATURE_FIXER = 1,
+        FEATURE_GEN9_EXCLUSIVE = 0,
+        FEATURE_HEIST_ISLAND = 1,
+        FEATURE_SUMMER_2020 = 1,
+        FEATURE_TUNER = 1,
+    },
     WeaponLabels = {
         WEAPON_ACIDPACKAGE = {
             name = "WT_ACIDPACKAGE",
