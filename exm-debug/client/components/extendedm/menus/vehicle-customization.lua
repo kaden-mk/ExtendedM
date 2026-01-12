@@ -7,6 +7,7 @@
 ]]
 
 local Native = EXMInterface.Native
+local ExtendedM = exports["exm-core"]:ExtendedM()
 local Config = EXMDebug.Config
 local Utility = EXMDebug.Utility
 
@@ -20,59 +21,14 @@ local btn = Native.Button
 local HEADER_DICT = "shopui_title_carmod"
 local OWNED_SPRITE = { dict = "commonmenu", name = "shop_garage_icon_a", hover_name = "shop_garage_icon_b" }
 
-local MOD_CATEGORIES = {
-    Spoilers = 0,
-    FrontBumper = 1,
-    RearBumper = 2,
-    SideSkirt = 3,
-    Exhaust = 4,
-    Frame = 5,
-    Grille = 6,
-    Hood = 7,
-    Fender = 8,
-    RightFender = 9,
-    Roof = 10,
-    Engine = 11,
-    Brakes = 12,
-    Transmission = 13,
-    Horns = 14,
-    Suspension = 15,
-    Armor = 16,
-    Turbo = 18,
-    Xenon = 22,
-    Wheels = 23,
-    PlateHolder = 25,
-    VanityPlates = 26,
-    TrimDesign = 27,
-    Ornaments = 28,
-    Dashboard = 29,
-    DialDesign = 30,
-    DoorSpeakers = 31,
-    Seats = 32,
-    SteeringWheels = 33,
-    ShifterLeavers = 34,
-    Plaques = 35,
-    Speakers = 36,
-    Trunk = 37,
-    Hydraulics = 38,
-    EngineBlock = 39,
-    AirFilter = 40,
-    Struts = 41,
-    ArchCover = 42,
-    Aerials = 43,
-    Trim = 44,
-    Tank = 45,
-    Windows = 46,
-    Livery = 48,
-}
 
 local AVAILABLE_MENUS = {
-    { id = "_ENGINE",       label = "CMOD_MOD_ENG", desc = "CMOD_MOD_7_D",  mod = MOD_CATEGORIES.Engine,       price = 2500,  type = "engine" },
-    { id = "_BRAKES",       label = "CMOD_MOD_BRA", desc = "CMOD_MOD_3_D",  mod = MOD_CATEGORIES.Brakes,       price = 2000,  type = "list" },
-    { id = "_TRANSMISSION", label = "CMOD_MOD_TRN", desc = "CMOD_MOD_26_D", mod = MOD_CATEGORIES.Transmission, price = 3000,  type = "list" },
-    { id = "_SUSPENSION",   label = "CMOD_MOD_SUS", desc = "CMOD_MOD_24_D", mod = MOD_CATEGORIES.Suspension,   price = 1500,  type = "list" },
-    { id = "_ARMOR",        label = "CMOD_MOD_ARM", desc = "CMOD_MOD_16_D", mod = MOD_CATEGORIES.Armor,        price = 5000,  type = "list" },
-    { id = "_TURBO",        label = "CMOD_MOD_TUR", desc = "CMOD_MOD_27_D", mod = MOD_CATEGORIES.Turbo,        price = 15000, type = "turbo" },
+    { id = "_SUSPENSION",   label = "CMOD_MOD_SUS", desc = "CMOD_MOD_24_D", mod = ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_SUSPENSION,   menu_enum = ExtendedM.Enum.VEHICLE_MOD_MENU.CMM_SUSPENSION,   type = "list" },
+    { id = "_ENGINE",       label = "CMOD_MOD_ENG", desc = "CMOD_MOD_7_D",  mod = ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_ENGINE,       menu_enum = ExtendedM.Enum.VEHICLE_MOD_MENU.CMM_ENGINE,       type = "engine" },
+    { id = "_TRANSMISSION", label = "CMOD_MOD_TRN", desc = "CMOD_MOD_26_D", mod = ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_GEARBOX, menu_enum = ExtendedM.Enum.VEHICLE_MOD_MENU.CMM_TRANSMISSION, type = "list" },
+    { id = "_ARMOR",        label = "CMOD_MOD_ARM", desc = "CMOD_MOD_16_D", mod = ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_ARMOUR,        menu_enum = ExtendedM.Enum.VEHICLE_MOD_MENU.CMM_ARMOUR,       type = "armor" },
+    { id = "_BRAKES",       label = "CMOD_MOD_BRA", desc = "CMOD_MOD_3_D",  mod = ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_BRAKES,       menu_enum = ExtendedM.Enum.VEHICLE_MOD_MENU.CMM_BRAKES,       type = "list" },
+    { id = "_TURBO",        label = "CMOD_MOD_TUR", desc = "CMOD_MOD_27_D", mod = ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_TOGGLE_TURBO,        menu_enum = ExtendedM.Enum.VEHICLE_MOD_MENU.CMM_TURBO,        type = "turbo" },
 }
 
 local last_vehicle = 0
@@ -126,17 +82,17 @@ end)
 
 local function GetModName(vehicle, mod_type, mod_index)
     local prefixes = {
-        [MOD_CATEGORIES.Engine] = "CMOD_ENG_",
-        [MOD_CATEGORIES.Brakes] = "CMOD_BRA_",
-        [MOD_CATEGORIES.Transmission] = "CMOD_GBX_",
-        [MOD_CATEGORIES.Suspension] = "CMOD_SUS_",
-        [MOD_CATEGORIES.Armor] = "CMOD_ARM_",
-        [MOD_CATEGORIES.Horns] = "CMOD_HRN_",
-        [MOD_CATEGORIES.Grille] = "CMOD_GRL_",
-        [MOD_CATEGORIES.Exhaust] = "CMOD_MUF_",
-        [MOD_CATEGORIES.FrontBumper] = "CMOD_BUM_",
-        [MOD_CATEGORIES.RearBumper] = "CMOD_BUM_",
-        [MOD_CATEGORIES.Spoilers] = "CMOD_SPO_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_ENGINE] = "CMOD_ENG_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_BRAKES] = "CMOD_BRA_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_GEARBOX] = "CMOD_GBX_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_SUSPENSION] = "CMOD_SUS_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_ARMOUR] = "CMOD_ARM_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_HORN] = "CMOD_HRN_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_GRILL] = "CMOD_GRL_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_EXHAUST] = "CMOD_MUF_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_BUMPER_F] = "CMOD_BUM_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_BUMPER_R] = "CMOD_BUM_",
+        [ExtendedM.Enum.VEHICLE_MOD_TYPE.MOD_SPOILER] = "CMOD_SPO_",
     }
 
     local prefix = prefixes[mod_type]
@@ -166,7 +122,7 @@ local function GetModName(vehicle, mod_type, mod_index)
 end
 
 local RENDERERS = {
-    list = function(menu_id, title_label, mod_type, price_factor)
+    list = function(menu_id, title_label, mod_type, menu_type_enum)
         menu(menu_id, function()
             Native.SetMaxVisibleMenuItemCount(menu_id, 10)
             
@@ -183,7 +139,22 @@ local RENDERERS = {
                 local is_installed = current_mod == mod_to_set
                 
                 local mod_name = GetModName(veh, mod_type, i)
-                local price = mod_to_set ~= -1 and "$" .. tostring(i * price_factor) or ""
+                local price_value = 0
+                
+                if mod_to_set ~= -1 and menu_type_enum then
+                    local price_variation = ExtendedM.Vehicles.GET_VEHICLE_MOD_PRICE_VARIATION_FOR_CATALOGUE(GetEntityModel(veh))
+                    price_value = ExtendedM.Vehicles.GET_MP_CARMOD_MENU_OPTION_COST(
+                        menu_type_enum,
+                        i,
+                        price_variation,
+                        0,
+                        nil,
+                        1.0,
+                        false
+                    )
+                end
+                
+                local price = price_value > 0 and "$" .. tostring(price_value) or ""
                 
                 btn(mod_name, nil, is_installed and "" or price, is_installed and OWNED_SPRITE or nil)
                 :On("click", function()
@@ -194,7 +165,7 @@ local RENDERERS = {
         end)
     end,
 
-    engine = function(menu_id, title_label, mod_type, price_factor)
+    engine = function(menu_id, title_label, mod_type, menu_type_enum)
         menu(menu_id, function()
             Native.SetMaxVisibleMenuItemCount(menu_id, 10)
 
@@ -210,7 +181,22 @@ local RENDERERS = {
                 local mod_name = GetModName(veh, mod_type, i + 2) 
                 
                 local is_installed = current_mod == i
-                local price = "$" .. tostring((i + 1) * price_factor)
+                local price_value = 0
+                
+                if menu_type_enum then
+                    local price_variation = ExtendedM.Vehicles.GET_VEHICLE_MOD_PRICE_VARIATION_FOR_CATALOGUE(GetEntityModel(veh))
+                    price_value = ExtendedM.Vehicles.GET_MP_CARMOD_MENU_OPTION_COST(
+                        menu_type_enum,
+                        i + 1,
+                        price_variation,
+                        0,
+                        nil,
+                        1.0,
+                        false
+                    )
+                end
+                
+                local price = price_value > 0 and "$" .. tostring(price_value) or ""
                 
                 btn(mod_name, nil, is_installed and "" or price, is_installed and OWNED_SPRITE or nil)
                 :On("click", function()
@@ -226,7 +212,54 @@ local RENDERERS = {
         end)
     end,
 
-    turbo = function(menu_id, title_label, mod_type, upgrade_price)
+    armor = function(menu_id, title_label, mod_type, menu_type_enum)
+        menu(menu_id, function()
+            Native.SetMaxVisibleMenuItemCount(menu_id, 10)
+
+            head(HEADER_DICT, HEADER_DICT, GetLabelText(title_label))
+            
+            local veh = GetCurrentVehicle()
+            if not veh then return end
+            
+            local max_mods = GetNumVehicleMods(veh, mod_type)
+            local current_mod = GetVehicleMod(veh, mod_type)
+            
+            for i = 0, max_mods - 1 do
+                local mod_name = GetModName(veh, mod_type, i + 1)
+                
+                local is_installed = current_mod == i
+                local price_value = 0
+                
+                if menu_type_enum then
+                    local price_variation = ExtendedM.Vehicles.GET_VEHICLE_MOD_PRICE_VARIATION_FOR_CATALOGUE(GetEntityModel(veh))
+                    price_value = ExtendedM.Vehicles.GET_MP_CARMOD_MENU_OPTION_COST(
+                        menu_type_enum,
+                        i + 1,
+                        price_variation,
+                        0,
+                        nil,
+                        1.0,
+                        false
+                    )
+                end
+                
+                local price = price_value > 0 and "$" .. tostring(price_value) or ""
+                
+                btn(mod_name, nil, is_installed and "" or price, is_installed and OWNED_SPRITE or nil)
+                :On("click", function()
+                    if is_installed then
+                        SetVehicleMod(veh, mod_type, -1, false)
+                    else
+                        SetVehicleMod(veh, mod_type, i, false)
+                    end
+
+                    Native.Refresh(menu_id)
+                end)
+            end
+        end)
+    end,
+
+    turbo = function(menu_id, title_label, mod_type, menu_type_enum)
         menu(menu_id, function()
             Native.SetMaxVisibleMenuItemCount(menu_id, 10)
 
@@ -237,13 +270,29 @@ local RENDERERS = {
             
             local has_mod = IsToggleModOn(veh, mod_type)
             
-            btn(GetLabelText("CMOD_ARM_0"), nil, not has_mod and "" or "", not has_mod and OWNED_SPRITE or nil)
+            btn(GetLabelText("CMOD_TUR_0"), nil, not has_mod and "" or "", not has_mod and OWNED_SPRITE or nil)
             :On("click", function()
                 ToggleVehicleMod(veh, mod_type, false)
                 Native.Refresh(menu_id)
             end)
             
-            btn(GetLabelText("CMOD_TUR_1"), nil, has_mod and "" or "$" .. upgrade_price, has_mod and OWNED_SPRITE or nil)
+            local price_value = 0
+            if menu_type_enum then
+                local price_variation = ExtendedM.Vehicles.GET_VEHICLE_MOD_PRICE_VARIATION_FOR_CATALOGUE(GetEntityModel(veh))
+                price_value = ExtendedM.Vehicles.GET_MP_CARMOD_MENU_OPTION_COST(
+                    menu_type_enum,
+                    1,
+                    price_variation,
+                    0,
+                    nil,
+                    1.0,
+                    false
+                )
+            end
+            
+            local price = price_value > 0 and "$" .. tostring(price_value) or ""
+            
+            btn(GetLabelText("CMOD_TUR_1"), nil, has_mod and "" or price, has_mod and OWNED_SPRITE or nil)
             :On("click", function()
                 ToggleVehicleMod(veh, mod_type, true)
                 Native.Refresh(menu_id)
@@ -257,7 +306,7 @@ for _, menu_item in ipairs(AVAILABLE_MENUS) do
     local renderer = RENDERERS[menu_item.type]
     
     if renderer then
-        renderer(full_id, menu_item.label, menu_item.mod, menu_item.price)
+        renderer(full_id, menu_item.label, menu_item.mod, menu_item.menu_enum)
     end
 end
 

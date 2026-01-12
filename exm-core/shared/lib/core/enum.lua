@@ -271,5 +271,50 @@ ExtendedM.Enum = {
         MKT_SPORT = 1,
         MKT_SUV = 2,
         MKT_SPECIAL = 3
+    },
+
+    VEHICLE_AGE = {
+        VEHICLE_AGE_BRAND_NEW = 0,
+        VEHICLE_AGE_SLIGHTLY_USED = 1,
+        VEHICLE_AGE_USED = 2,
+        VEHICLE_AGE_HEAVILY_USED = 3,
+    },
+
+    VEHICLE_REPAIRS = {
+        REPAIR_HEALTH = 0,
+        REPAIR_ENGINE = 1,
+        REPAIR_DOORS = 2,
+        REPAIR_BONNET = 3,
+        REPAIR_BOOT = 4,
+        REPAIR_BUMPERS = 5,
+        REPAIR_WHEELS = 6,
+        REPAIR_WINDOWS = 7,
+    },
+
+    VEHICLE_DOOR_ID = {
+        SC_DOOR_FRONT_LEFT = 0,
+        SC_DOOR_FRONT_RIGHT = 1,
+        SC_DOOR_REAR_LEFT = 2,
+        SC_DOOR_REAR_RIGHT = 3,
+        SC_DOOR_BONNET = 4,
+        SC_DOOR_BOOT = 5
+    },
+
+    VEHICLE_TYRE_ID = {
+        SC_WHEEL_BIKE_FRONT = 6,
+        SC_WHEEL_BIKE_REAR = 7,
+        SC_WHEEL_CAR_FRONT_LEFT = 0,
+        SC_WHEEL_CAR_FRONT_RIGHT = 1,
+        SC_WHEEL_CAR_MID_LEFT = 2,
+        SC_WHEEL_CAR_MID_RIGHT = 3,
+        SC_WHEEL_CAR_REAR_LEFT = 4,
+        SC_WHEEL_CAR_REAR_RIGHT = 5,
+    },
+
+    VEHICLE_WINDOW_ID = {
+        SC_WINDOW_FRONT_LEFT = 0,
+        SC_WINDOW_FRONT_RIGHT = 1,
+        SC_WINDOW_REAR_LEFT = 2,
+        SC_WINDOW_REAR_RIGHT = 3
     }
 }

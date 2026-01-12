@@ -91,6 +91,7 @@ ExtendedM.Config = {
             BIKE = {200, 4000, 5400, 7000, 60000},
         }
     },
+    USE_TU_CHANGES = 1,
     Features = {
         FEATURE_DLC_1_2022 = 1,
         FEATURE_DLC_2_2022 = 0,
@@ -99,6 +100,8 @@ ExtendedM.Config = {
         FEATURE_HEIST_ISLAND = 1,
         FEATURE_SUMMER_2020 = 1,
         FEATURE_TUNER = 1,
+        FEATURE_COPS_N_CROOKS = 0,
+        FEATURE_PILOT_SCHOOL = 1
     },
     WeaponLabels = {
         WEAPON_ACIDPACKAGE = {
